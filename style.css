@@ -1,0 +1,183 @@
+:root {
+    --bg: #0a0a0c;
+    --glass: rgba(255, 255, 255, 0.05);
+    --border: rgba(255, 255, 255, 0.1);
+    --primary: #bc13fe; /* Neon Purple */
+    --secondary: #2ecc71; /* Neon Green */
+    --accent: #48dbfb; /* Sky Blue */
+    --text: #ffffff;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: var(--bg);
+    background-image: radial-gradient(circle at 50% -20%, #3e1063, transparent);
+    color: var(--text);
+    font-family: 'Space Grotesk', sans-serif;
+    min-height: 100vh;
+}
+
+/* Navbar */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 5%;
+    background: rgba(10, 10, 12, 0.8);
+    backdrop-filter: blur(10px);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.logo {
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -1px;
+}
+
+.logo span { color: var(--primary); }
+
+.nav-links {
+    list-style: none;
+    display: flex;
+    gap: 20px;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: #888;
+    transition: 0.3s;
+}
+
+.nav-links a.active, .nav-links a:hover {
+    color: var(--text);
+    text-shadow: 0 0 10px var(--primary);
+}
+
+/* Container */
+.container {
+    padding: 2rem 5%;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.hero { text-align: center; margin-bottom: 3rem; }
+.hero h1 span { color: var(--accent); }
+
+/* Glassmorphism Cards */
+.glass-card {
+    background: var(--glass);
+    border: 1px solid var(--border);
+    backdrop-filter: blur(12px);
+    border-radius: 20px;
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+    transition: transform 0.3s ease;
+}
+
+.glass-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--primary);
+}
+
+/* Buttons */
+button {
+    cursor: pointer;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    transition: 0.3s;
+}
+
+.btn-primary {
+    background: var(--primary);
+    color: white;
+    padding: 1rem 2rem;
+    width: 100%;
+    margin-top: 1rem;
+    box-shadow: 0 0 15px rgba(188, 19, 254, 0.4);
+}
+
+.btn-game {
+    background: var(--glass);
+    color: white;
+    padding: 0.8rem 1.5rem;
+    border: 1px solid var(--border);
+}
+
+/* Games Styling */
+.bottle-area {
+    font-size: 4rem;
+    height: 150px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#bottle {
+    transition: transform 3s cubic-bezier(0.1, 0, 0.1, 1);
+}
+
+textarea {
+    width: 100%;
+    height: 100px;
+    background: rgba(0,0,0,0.3);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: white;
+    padding: 10px;
+    margin-top: 10px;
+}
+/* FLAMES Input Boxes - Exact Theme Match */
+input[type="text"] {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.3); /* Matches your confession box background */
+    border: 1px solid var(--border); /* Matches your glass card borders */
+    border-radius: 10px;
+    color: white;
+    padding: 10px;
+    margin-top: 10px;
+    font-family: 'Space Grotesk', sans-serif;
+    outline: none; /* Removes the ugly default browser border */
+}
+
+/* Optional: Subtle purple glow only when you click inside */
+input[type="text"]:focus {
+    border-color: var(--primary);
+}
+/* --- ANIMATIONS --- */
+
+/* 1. Float Animation (Up and Down) */
+@keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); } /* Moves up 10px */
+    100% { transform: translateY(0px); }
+}
+
+/* 2. Slide In From Right (For the Feed Page) */
+@keyframes slideInRight {
+    0% {
+        opacity: 0;
+        transform: translateX(50px); /* Starts 50px to the right */
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0); /* Lands in the center */
+    }
+}
+
+/* Class to apply the Float animation */
+.animate-float {
+    animation: float 3s ease-in-out infinite;
+}
+
+/* Class to apply the Slide animation */
+.animate-slide-in {
+    animation: slideInRight 0.6s ease-out forwards;
+}
