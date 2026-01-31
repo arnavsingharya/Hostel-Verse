@@ -1,7 +1,7 @@
-/* --- HOSTELVERSE ONLINE (Fixed & Verified) --- */
+/* --- HOSTELVERSE ONLINE (Final Compat Fix) --- */
 console.log("HostelVerse Script Loaded 🚀");
 
-// --- 1. FIREBASE CONFIGURATION (No 'import' lines allowed here!) ---
+// --- 1. FIREBASE CONFIGURATION ---
 const firebaseConfig = {
   apiKey: "AIzaSyADora-jmivunZDqq2L4ZhARgOofa4pQyA",
   authDomain: "hostel-verse-a432c.firebaseapp.com",
@@ -14,19 +14,19 @@ const firebaseConfig = {
 };
 
 // --- 2. INITIALIZE CONNECTION ---
-// We check if the 'firebase' object exists (loaded from HTML)
 let db;
+
+// Check if Firebase loaded from HTML
 if (typeof firebase !== 'undefined') {
     try {
         firebase.initializeApp(firebaseConfig);
-        db = firebase.database();
+        db = firebase.database(); // <--- THIS IS THE FIX (No 'getDatabase')
         console.log("✅ Firebase Connected!");
     } catch (e) {
         console.error("❌ Firebase Error:", e);
     }
 } else {
-    console.error("❌ Critical Error: Firebase script tags missing in HTML!");
-    alert("Database connection failed. Check your HTML file.");
+    console.error("❌ Firebase SDK not found. Check index.html head tags!");
 }
 
 // --- CONFIGURATION ---
@@ -34,25 +34,19 @@ const avatars = ['🦊', '🐱', '🦄', '👻', '🤖', '👾', '🐸', '🦁',
 
 // --- INITIALIZATION ---
 document.addEventListener('DOMContentLoaded', () => {
-    // If we are on the Feed page, listen for messages
     if (document.getElementById('feed-container')) {
         listenForConfessions();
     }
 });
 
-// --- CONFESSION LOGIC (SEND) ---
-// This function MUST be global so the button can see it
+// --- CONFESSION LOGIC ---
 window.submitConfession = function() {
     const input = document.getElementById('confessionInput');
-    if (!input) {
-        console.error("Input box not found!");
-        return;
-    }
-
+    if (!input) return;
     const text = input.value.trim();
-    if (!text) return alert("Bhai kuch toh likh! (Write something)");
+    if (!text) return alert("Bhai kuch toh likh!");
 
-    if (!db) return alert("Database not connected! Refresh the page.");
+    if (!db) return alert("Database connecting... try again in a second.");
 
     const newConfession = {
         text: text,
@@ -63,40 +57,26 @@ window.submitConfession = function() {
         timestamp: firebase.database.ServerValue.TIMESTAMP
     };
 
-    console.log("Sending confession...", newConfession);
-
-    // Push to Firebase
     db.ref('confessions').push(newConfession, (error) => {
-        if (error) {
-            alert("Error saving: " + error.message);
-        } else {
-            console.log("Success! Redirecting...");
-            window.location.href = 'index.html';
-        }
+        if (error) alert("Error: " + error.message);
+        else window.location.href = 'index.html';
     });
 };
 
-// --- FEED LOGIC (LISTEN) ---
+// --- FEED LOGIC ---
 function listenForConfessions() {
     if (!db) return;
-    
     const container = document.getElementById('feed-container');
     
     db.ref('confessions').on('value', (snapshot) => {
         const data = snapshot.val();
-        
         if (!data) {
-            container.innerHTML = `<p style="text-align:center; opacity:0.5; margin-top: 2rem;">No tea yet. Be the first!</p>`;
+            container.innerHTML = `<p style="text-align:center; opacity:0.5; margin-top: 2rem;">No tea yet.</p>`;
             return;
         }
-
-        const confessions = Object.keys(data).map(key => {
-            return { firebaseKey: key, ...data[key] };
-        });
-
-        // Sort: Newest First
+        
+        const confessions = Object.keys(data).map(key => ({ firebaseKey: key, ...data[key] }));
         confessions.sort((a, b) => b.timestamp - a.timestamp);
-
         renderFeed(container, confessions);
     });
 }
@@ -122,7 +102,7 @@ function renderFeed(container, confessions) {
             </div>
             <p style="white-space: pre-wrap; margin-bottom: 15px;">${post.text}</p>
             <div style="display:flex; align-items:center; justify-content: space-between; border-top:1px solid rgba(255,255,255,0.1); padding-top:10px;">
-                <button onclick="likePost('${post.firebaseKey}', ${post.likes})" style="background:none; border:none; color:${likeColor}; cursor:pointer; font-weight:bold; font-size:1rem;">
+                <button onclick="likePost('${post.firebaseKey}', ${post.likes})" style="background:none; border:none; color:${likeColor}; cursor:pointer; font-weight:bold;">
                     ${isLiked ? '🔥' : '🕯️'} ${post.likes}
                 </button>
                 ${deleteBtn}
@@ -135,7 +115,6 @@ function renderFeed(container, confessions) {
 window.likePost = function(key, currentLikes) {
     let likedPosts = JSON.parse(localStorage.getItem('likedPosts') || '[]');
     if (likedPosts.includes(key)) return;
-    
     db.ref('confessions/' + key).update({ likes: currentLikes + 1 });
     likedPosts.push(key);
     localStorage.setItem('likedPosts', JSON.stringify(likedPosts));
@@ -147,7 +126,7 @@ window.deletePost = function(key) {
     }
 };
 
-// --- HELPER: ID ---
+// --- HELPER ---
 function getDeviceId() {
     let id = localStorage.getItem('deviceId');
     if (!id) {
@@ -157,14 +136,14 @@ function getDeviceId() {
     return id;
 }
 
-// --- GAMES (Local) ---
+// --- GAMES ---
 window.spinBottle = function() {
     const bottle = document.getElementById('bottle');
     if (bottle) {
-        let currentRotation = parseInt(bottle.getAttribute('data-rotation') || 0);
-        currentRotation += Math.floor(Math.random() * 3000) + 720;
-        bottle.style.transform = `rotate(${currentRotation}deg)`;
-        bottle.setAttribute('data-rotation', currentRotation);
+        let r = parseInt(bottle.getAttribute('data-rotation') || 0);
+        r += Math.floor(Math.random() * 3000) + 720;
+        bottle.style.transform = `rotate(${r}deg)`;
+        bottle.setAttribute('data-rotation', r);
     }
 };
 
@@ -172,26 +151,25 @@ const truths = ["Who is your hostel crush?", "Last lie you told warden?", "Worst
 const dares = ["Text crush 'I know what you did'", "Sing anthem", "Scream 'Mummy meri shaadi karwa do!'", "Naagin dance", "Call parents say you failed", "Beg for 10rs", "Wear socks on hands", "Imitate prof", "Eat raw coffee"];
 
 window.getToD = function(type) {
-    const display = document.getElementById('tod-display');
-    if (!display) return;
-    const list = type === 'truth' ? truths : dares;
-    display.innerText = list[Math.floor(Math.random() * list.length)];
+    const d = document.getElementById('tod-display');
+    if (d) d.innerText = (type === 'truth' ? truths : dares)[Math.floor(Math.random() * (type === 'truth' ? truths : dares).length)];
 };
 
 const nhie = ["Never eaten someone else's tiffin.", "Never called teacher 'Mummy'.", "Never slept in library.", "Never used fake medical.", "Never crushed on friend's sibling.", "Never made Maggi in kettle.", "Never worn same underwear 2 days.", "Never hooked up in hostel."];
 
 window.nextNeverHaveIEver = function() {
-    const display = document.getElementById('nhie-display');
-    if (display) display.innerText = nhie[Math.floor(Math.random() * nhie.length)];
+    const d = document.getElementById('nhie-display');
+    if (d) d.innerText = nhie[Math.floor(Math.random() * nhie.length)];
 };
 
 window.calculateFlames = function() {
-    const name1 = document.getElementById('name1').value.toLowerCase().replace(/\s/g, '');
-    const name2 = document.getElementById('name2').value.toLowerCase().replace(/\s/g, '');
-    const resultDisplay = document.getElementById('flames-result');
-    if (!name1 || !name2) { resultDisplay.innerText = "Enter names!"; return; }
-    const outcomes = ["Friends 🤝", "Lovers ❤️", "Affection 🤗", "Marriage 💍", "Enemies ⚔️", "Siblings  राखी"];
-    const combined = name1 + name2;
-    let count = 0;
-    for(let i=0; i<combined.length; i++) count += combined.charCodeAt(i);
-    resultDisplay.innerText = outcomes[count %
+    const n1 = document.getElementById('name1').value.toLowerCase().replace(/\s/g, '');
+    const n2 = document.getElementById('name2').value.toLowerCase().replace(/\s/g, '');
+    const d = document.getElementById('flames-result');
+    if (!n1 || !n2) { d.innerText = "Enter names!"; return; }
+    const o = ["Friends 🤝", "Lovers ❤️", "Affection 🤗", "Marriage 💍", "Enemies ⚔️", "Siblings  राखी"];
+    const c = n1 + n2;
+    let cnt = 0; for(let i=0; i<c.length; i++) cnt += c.charCodeAt(i);
+    d.innerText = o[cnt % o.length];
+    d.style.opacity = 0; setTimeout(() => { d.style.opacity = 1; }, 100);
+};
