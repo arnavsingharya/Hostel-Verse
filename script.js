@@ -4,15 +4,15 @@ console.log("HostelVerse Online 🚀");
 // --- 1. PASTE YOUR FIREBASE CONFIG HERE ---
 // (Get this from the Firebase Console > Project Settings)
 const firebaseConfig = {
-    apiKey: "AIzaSyD... (PASTE YOURS HERE)",
-    authDomain: "hostelverse-....firebaseapp.com",
-    databaseURL: "https://hostelverse-....firebasedatabase.app",
-    projectId: "hostelverse-...",
-    storageBucket: "hostelverse-...",
-    messagingSenderId: "...",
-    appId: "..."
+  apiKey: "AIzaSyADora-jmivunZDqq2L4ZhARgOofa4pQyA",
+  authDomain: "hostel-verse-a432c.firebaseapp.com",
+  databaseURL: "https://hostel-verse-a432c-default-rtdb.firebaseio.com",
+  projectId: "hostel-verse-a432c",
+  storageBucket: "hostel-verse-a432c.firebasestorage.app",
+  messagingSenderId: "658844045039",
+  appId: "1:658844045039:web:105d6e0eda7740857b951a",
+  measurementId: "G-FC2QLNWFJG"
 };
-
 // --- 2. INITIALIZE DATABASE ---
 let db;
 // We wait for the window.firebase object (loaded from HTML)
@@ -161,3 +161,4 @@ function spinBottle() {
     }
 }
 // ... Add your getToD(), nextNeverHaveIEver(), calculateFlames() functions here ...
+
