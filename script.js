@@ -1,4 +1,4 @@
-/* --- HOSTELVERSE ONLINE (Install Button + Your Password) --- */
+/* --- HOSTELVERSE ONLINE (Categories Update) --- */
 console.log("HostelVerse Script Loaded 🚀");
 
 // --- 1. FIREBASE CONFIGURATION ---
@@ -52,14 +52,12 @@ function setupAdminTrigger() {
             if(window.location.pathname.includes('index.html') || window.location.href.endsWith('/')) {
                 e.preventDefault();
                 logoClicks++;
-                console.log("Secret Tap:", logoClicks);
-
+                
                 if (logoClicks === 5) {
                     const password = prompt("🕵️‍♂️ Admin Access Required\nEnter Password:");
-                    // --- YOUR CUSTOM PASSWORD IS HERE ---
-                    if (password === "(#Y00cr0y0y)") { 
+                    if (password === "(#Y00cr0y0y)") { // YOUR PASSWORD
                         isAdminMode = true;
-                        alert("🔓 GOD MODE ACTIVATED\nYou can now delete any post and see report counts.");
+                        alert("🔓 GOD MODE ACTIVATED");
                         listenForConfessions();
                     } else {
                         alert("❌ Access Denied");
@@ -81,17 +79,23 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// --- CONFESSION LOGIC ---
+// --- CONFESSION LOGIC (UPDATED WITH CATEGORY) ---
 window.submitConfession = function() {
     const input = document.getElementById('confessionInput');
+    const categorySelect = document.getElementById('categorySelect'); // Get Dropdown
+    
     if (!input) return;
     const text = input.value.trim();
     if (!text) return alert("Bhai kuch toh likh!");
 
     if (!db) return alert("Database connecting... try again in a second.");
 
+    // Get selected category or default to 'general'
+    const category = categorySelect ? categorySelect.value : 'general';
+
     const newConfession = {
         text: text,
+        category: category, // SAVE CATEGORY
         avatar: avatars[Math.floor(Math.random() * avatars.length)],
         likes: 0,
         reports: 0,
@@ -106,7 +110,7 @@ window.submitConfession = function() {
     });
 };
 
-// --- FEED LOGIC ---
+// --- FEED LOGIC (UPDATED WITH COLORS) ---
 function listenForConfessions() {
     if (!db) { hideLoader(); return; }
     const container = document.getElementById('feed-container');
@@ -138,9 +142,21 @@ function renderFeed(container, confessions) {
         const isReported = reportedPosts.includes(post.firebaseKey);
         const isMine = post.deviceId === myDeviceId;
         
+        // 🔥 Trending Logic
         const isTrending = (post.likes || 0) >= 10;
         const trendingClass = isTrending ? 'trending-card' : '';
         const trendingBadge = isTrending ? '<span class="trending-badge">🔥 TRENDING</span>' : '';
+
+        // 🎨 Category Logic (New!)
+        let categoryClass = '';
+        let categoryEmoji = '';
+        if (post.category === 'crush') { categoryClass = 'cat-crush'; categoryEmoji = '❤️ Crush'; }
+        else if (post.category === 'rant') { categoryClass = 'cat-rant'; categoryEmoji = '😡 Rant'; }
+        else if (post.category === 'funny') { categoryClass = 'cat-funny'; categoryEmoji = '😂 Funny'; }
+        else if (post.category === 'scary') { categoryClass = 'cat-scary'; categoryEmoji = '👻 Scary'; }
+
+        // Only show badge if it's not general
+        const catBadge = categoryEmoji ? `<span class="cat-badge">${categoryEmoji}</span>` : '';
 
         const showDelete = isAdminMode || isMine;
         const deleteBtn = showDelete 
@@ -156,11 +172,11 @@ function renderFeed(container, confessions) {
             : '<span style="margin-left:auto;"></span>';
 
         return `
-        <div class="glass-card ${trendingClass}">
+        <div class="glass-card ${trendingClass} ${categoryClass}">
             <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
                 <span style="font-size:1.5rem;">${post.avatar}</span>
                 <small style="opacity:0.5;">Anonymous • ${post.time}</small>
-                <div style="margin-left: auto;">${trendingBadge}${reportInfo}</div>
+                <div style="margin-left: auto;">${trendingBadge}${catBadge}${reportInfo}</div>
             </div>
             <p style="white-space: pre-wrap; margin-bottom: 15px;">${post.text}</p>
             <div style="display:flex; align-items:center; border-top:1px solid rgba(255,255,255,0.1); padding-top:10px;">
@@ -252,26 +268,14 @@ let deferredPrompt;
 const installBtn = document.getElementById('installBtn');
 
 window.addEventListener('beforeinstallprompt', (e) => {
-    // Prevent Chrome 67 and earlier from automatically showing the prompt
     e.preventDefault();
-    // Stash the event so it can be triggered later
     deferredPrompt = e;
-    // Update UI to notify the user they can add to home screen
     if (installBtn) {
         installBtn.style.display = 'block';
-        
         installBtn.addEventListener('click', (e) => {
-            // Hide the app provided install promotion
             installBtn.style.display = 'none';
-            // Show the install prompt
             deferredPrompt.prompt();
-            // Wait for the user to respond to the prompt
             deferredPrompt.userChoice.then((choiceResult) => {
-                if (choiceResult.outcome === 'accepted') {
-                    console.log('User accepted the A2HS prompt');
-                } else {
-                    console.log('User dismissed the A2HS prompt');
-                }
                 deferredPrompt = null;
             });
         });
