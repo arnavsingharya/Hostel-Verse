@@ -419,3 +419,83 @@ button {
     .grid { grid-template-columns: 1fr !important; }
 
     div.logo[style*="font-size: 4rem"] {
+
+/* --- GAMES TAB PRO UPGRADES --- */
+
+/* The Games Grid Layout */
+.games-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+}
+
+@media (min-width: 768px) {
+    .games-grid {
+        grid-template-columns: 1fr 1fr; /* 2 Columns on PC */
+    }
+}
+
+/* 1. SPIN THE BOTTLE STYLES */
+.bottle-container {
+    height: 250px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    background: radial-gradient(circle, rgba(46, 204, 113, 0.2) 0%, transparent 70%);
+}
+
+/* The Green Glass Bottle (SVG Styling) */
+#bottle {
+    width: 100px;
+    height: auto;
+    filter: drop-shadow(0 0 10px #2ecc71); /* Neon Green Glow */
+    transition: transform 3s cubic-bezier(0.1, 0, 0.1, 1); /* Smooth Spin */
+    cursor: pointer;
+}
+
+/* The Arrow/Pointer */
+.bottle-pointer {
+    position: absolute;
+    top: 10px;
+    font-size: 2rem;
+    color: #ff4757;
+    z-index: 10;
+    animation: bounce 1s infinite;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+/* 2. GAME CARDS (Specific Colors) */
+.game-card-tod {
+    border-top: 4px solid #48dbfb; /* Blue for Truth/Dare */
+}
+
+.game-card-flames {
+    border-top: 4px solid #ff4757; /* Red for Flames */
+}
+
+.game-card-nhie {
+    border-top: 4px solid #a55eea; /* Purple for Never Have I Ever */
+}
+
+/* 3. RESULT BOXES (Where text appears) */
+.result-box {
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 15px;
+    border-radius: 10px;
+    margin-top: 15px;
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-weight: bold;
+    color: #fff;
+    font-size: 1.1rem;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+}
