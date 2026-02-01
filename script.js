@@ -325,3 +325,20 @@ window.addEventListener('beforeinstallprompt', (e) => {
         });
     }
 });
+
+/* --- ADD TAG FUNCTION --- */
+window.addTag = function(tagName) {
+    const input = document.getElementById('confessionInput');
+    if (input) {
+        // Add the tag to the text, ensuring a space before it
+        input.value += (input.value.length > 0 ? " " : "") + tagName;
+        input.focus();
+        
+        // Update the character counter manually
+        const counter = document.getElementById('charCount');
+        if(counter) {
+            const current = input.value.length;
+            counter.innerText = `${current} / 280`;
+        }
+    }
+};
