@@ -22,215 +22,6 @@ body {
     min-height: 100vh;
 }
 
-/* Navbar */
-.navbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1.5rem 5%;
-    background: rgba(10, 10, 12, 0.8);
-    backdrop-filter: blur(10px);
-    position: sticky;
-    top: 0;
-    z-index: 100;
-}
-
-.logo {
-    font-size: 1.5rem;
-    font-weight: 700;
-    letter-spacing: -1px;
-}
-
-.logo span { color: var(--primary); }
-
-.nav-links {
-    list-style: none;
-    display: flex;
-    gap: 20px;
-}
-
-.nav-links a {
-    text-decoration: none;
-    color: #888;
-    transition: 0.3s;
-}
-
-.nav-links a.active, .nav-links a:hover {
-    color: var(--text);
-    text-shadow: 0 0 10px var(--primary);
-}
-
-/* Container */
-.container {
-    padding: 2rem 5%;
-    max-width: 800px;
-    margin: 0 auto;
-}
-
-.hero { text-align: center; margin-bottom: 3rem; }
-.hero h1 span { color: var(--accent); }
-
-/* Glassmorphism Cards */
-.glass-card {
-    background: var(--glass);
-    border: 1px solid var(--border);
-    backdrop-filter: blur(12px);
-    border-radius: 20px;
-    padding: 2rem;
-    margin-bottom: 1.5rem;
-    transition: transform 0.3s ease;
-}
-
-.glass-card:hover {
-    transform: translateY(-5px);
-    border-color: var(--primary);
-}
-
-/* Buttons */
-button {
-    cursor: pointer;
-    border: none;
-    border-radius: 12px;
-    font-weight: 600;
-    transition: 0.3s;
-}
-
-.btn-primary {
-    background: var(--primary);
-    color: white;
-    padding: 1rem 2rem;
-    width: 100%;
-    margin-top: 1rem;
-    box-shadow: 0 0 15px rgba(188, 19, 254, 0.4);
-}
-
-.btn-game {
-    background: var(--glass);
-    color: white;
-    padding: 0.8rem 1.5rem;
-    border: 1px solid var(--border);
-}
-
-/* Games Styling */
-.bottle-area {
-    font-size: 4rem;
-    height: 150px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-#bottle {
-    transition: transform 3s cubic-bezier(0.1, 0, 0.1, 1);
-}
-
-textarea {
-    width: 100%;
-    height: 100px;
-    background: rgba(0,0,0,0.3);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    color: white;
-    padding: 10px;
-    margin-top: 10px;
-}
-/* FLAMES Input Boxes - Exact Theme Match */
-input[type="text"] {
-    width: 100%;
-    background: rgba(0, 0, 0, 0.3); /* Matches your confession box background */
-    border: 1px solid var(--border); /* Matches your glass card borders */
-    border-radius: 10px;
-    color: white;
-    padding: 10px;
-    margin-top: 10px;
-    font-family: 'Space Grotesk', sans-serif;
-    outline: none; /* Removes the ugly default browser border */
-}
-
-/* Optional: Subtle purple glow only when you click inside */
-input[type="text"]:focus {
-    border-color: var(--primary);
-}
-/* --- ANIMATIONS --- */
-
-/* 1. Float Animation (Up and Down) */
-@keyframes float {
-    0% { transform: translateY(0px); }
-    50% { transform: translateY(-10px); } /* Moves up 10px */
-    100% { transform: translateY(0px); }
-}
-
-/* 2. Slide In From Right (For the Feed Page) */
-@keyframes slideInRight {
-    0% {
-        opacity: 0;
-        transform: translateX(50px); /* Starts 50px to the right */
-    }
-    100% {
-        opacity: 1;
-        transform: translateX(0); /* Lands in the center */
-    }
-}
-
-/* Class to apply the Float animation */
-.animate-float {
-    animation: float 3s ease-in-out infinite;
-}
-
-/* Class to apply the Slide animation */
-.animate-slide-in {
-    animation: slideInRight 0.6s ease-out forwards;
-
-}
-/* --- MOBILE RESPONSIVENESS (Add to bottom of style.css) --- */
-@media (max-width: 768px) {
-    
-    /* 1. Fix Navbar: Stack Logo and Links */
-    .navbar {
-        flex-direction: column;
-        padding: 1rem;
-        gap: 10px;
-    }
-
-    .nav-links {
-        width: 100%;
-        justify-content: center;
-        gap: 15px;
-        font-size: 0.9rem;
-        padding: 0;
-    }
-
-    /* 2. Fix Container Width */
-    .container {
-        width: 95%; /* Use more screen width on mobile */
-        padding: 1rem;
-    }
-
-    /* 3. Resize Big Text */
-    .logo {
-        font-size: 2rem; /* Make logo smaller */
-    }
-    
-    .hero h1 {
-        font-size: 2rem; /* Prevent headline from breaking */
-    }
-    
-    /* 4. Fix Game Grid (Force 1 Card per row) */
-    .grid {
-        grid-template-columns: 1fr !important;
-    }
-
-    /* 5. Adjust Welcome Page Logo */
-    div.logo[style*="font-size: 4.5rem"] {
-        font-size: 3rem !important; /* Fix giant logo on Home tab */
-    }
-
-    /* 6. Fix Card Padding */
-    .glass-card {
-        padding: 1.5rem;
-    }
-}
-
 /* --- LOADING SPINNER --- */
 #loader {
     position: fixed;
@@ -260,11 +51,189 @@ input[type="text"]:focus {
     100% { transform: rotate(360deg); } 
 }
 
-/* --- TRENDING / HOT POSTS --- */
+/* --- NAVBAR --- */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 5%;
+    background: rgba(10, 10, 12, 0.8);
+    backdrop-filter: blur(10px);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.logo {
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -1px;
+    cursor: pointer; /* For Admin Trigger */
+}
+
+.logo span { color: var(--primary); }
+
+.nav-links {
+    list-style: none;
+    display: flex;
+    gap: 20px;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: #888;
+    transition: 0.3s;
+}
+
+.nav-links a.active, .nav-links a:hover {
+    color: var(--text);
+    text-shadow: 0 0 10px var(--primary);
+}
+
+/* --- CONTAINER & LAYOUT --- */
+.container {
+    padding: 2rem 5%;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.hero { text-align: center; margin-bottom: 3rem; }
+.hero h1 span { color: var(--accent); }
+
+/* --- GLASS CARDS --- */
+.glass-card {
+    background: var(--glass);
+    border: 1px solid var(--border);
+    backdrop-filter: blur(12px);
+    border-radius: 20px;
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+    transition: transform 0.3s ease, border-color 0.3s;
+}
+
+.glass-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--primary);
+}
+
+/* --- INPUTS & FORMS --- */
+textarea {
+    width: 100%;
+    height: 100px;
+    background: rgba(0,0,0,0.3);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: white;
+    padding: 10px;
+    margin-top: 10px;
+    font-family: 'Space Grotesk', sans-serif;
+}
+
+input[type="text"] {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.3); 
+    border: 1px solid var(--border); 
+    border-radius: 10px;
+    color: white;
+    padding: 10px;
+    margin-top: 10px;
+    font-family: 'Space Grotesk', sans-serif;
+    outline: none; 
+}
+
+input[type="text"]:focus, textarea:focus {
+    border-color: var(--primary);
+}
+
+/* --- CUSTOM DROPDOWN (SELECT VIBE) --- */
+select {
+    width: 100%;
+    /* Glassmorphism Background */
+    background-color: rgba(255, 255, 255, 0.05); 
+    color: #ffffff;
+    
+    /* Borders */
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    
+    /* Spacing & Font */
+    padding: 12px 15px;
+    margin-bottom: 15px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1rem;
+    
+    /* Remove Default Ugly Arrow */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    outline: none;
+    cursor: pointer;
+    transition: 0.3s;
+
+    /* Custom Neon Purple Arrow */
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23bc13fe' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 1em;
+}
+
+select:hover, select:focus {
+    border-color: var(--primary);
+    background-color: rgba(0, 0, 0, 0.4);
+    box-shadow: 0 0 10px rgba(188, 19, 254, 0.2);
+}
+
+select option {
+    background-color: #0a0a0c;
+    color: white;
+    padding: 10px;
+}
+
+/* --- BUTTONS --- */
+button {
+    cursor: pointer;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    transition: 0.3s;
+}
+
+.btn-primary {
+    background: var(--primary);
+    color: white;
+    padding: 1rem 2rem;
+    width: 100%;
+    margin-top: 1rem;
+    box-shadow: 0 0 15px rgba(188, 19, 254, 0.4);
+}
+
+.btn-game {
+    background: var(--glass);
+    color: white;
+    padding: 0.8rem 1.5rem;
+    border: 1px solid var(--border);
+}
+
+/* --- GAMES STYLING --- */
+.bottle-area {
+    font-size: 4rem;
+    height: 150px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#bottle {
+    transition: transform 3s cubic-bezier(0.1, 0, 0.1, 1);
+}
+
+/* --- FEED UPGRADES (Trending, Categories, Admin) --- */
+
+/* Trending Glow */
 .trending-card {
-    border: 1px solid #ffd700 !important; /* Gold Border */
-    box-shadow: 0 0 15px rgba(255, 215, 0, 0.4); /* Gold Glow */
-    position: relative; /* For badge positioning */
+    border: 1px solid #ffd700 !important;
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+    position: relative;
 }
 
 .trending-badge {
@@ -279,7 +248,7 @@ input[type="text"]:focus {
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 
-/* ADMIN MODE STYLES */
+/* Admin Styles */
 .admin-badge {
     color: #ff4757; 
     font-size: 0.8rem; 
@@ -289,9 +258,40 @@ input[type="text"]:focus {
     margin-right: 5px;
 }
 
-/* --- WELCOME PAGE PRO UPGRADES --- */
+/* Category Glow Effects */
+.cat-crush {
+    border-color: #ff9ff3 !important;
+    box-shadow: 0 0 10px rgba(255, 159, 243, 0.2);
+}
 
-/* 1. Live User Badge */
+.cat-rant {
+    border-color: #ff4757 !important;
+    box-shadow: 0 0 10px rgba(255, 71, 87, 0.2);
+}
+
+.cat-funny {
+    border-color: #eccc68 !important;
+    box-shadow: 0 0 10px rgba(236, 204, 104, 0.2);
+}
+
+.cat-scary {
+    border-color: #7bed9f !important;
+    box-shadow: 0 0 10px rgba(123, 237, 159, 0.2);
+}
+
+.cat-badge {
+    font-size: 0.7rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-left: 10px;
+    opacity: 0.8;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+/* --- HOME PAGE PRO UPGRADES --- */
+
+/* Live User Badge */
 .live-badge {
     background: rgba(0, 0, 0, 0.6);
     border: 1px solid #2ecc71;
@@ -314,7 +314,7 @@ input[type="text"]:focus {
     100% { box-shadow: 0 0 0 0 rgba(46, 204, 113, 0); }
 }
 
-/* 2. Feature Icons Grid */
+/* Feature Icons */
 .features-row {
     display: flex;
     justify-content: center;
@@ -350,54 +350,72 @@ input[type="text"]:focus {
     color: #ccc;
 }
 
-/* --- CATEGORY STYLES --- */
+/* --- ABOUT PAGE GRID --- */
+.about-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+}
 
-/* The Dropdown Menu */
-select {
-    width: 100%;
-    background: rgba(0, 0, 0, 0.3);
-    border: 1px solid var(--border);
-    border-radius: 10px;
+.social-icon {
     color: white;
-    padding: 12px;
-    margin-bottom: 10px;
-    font-family: 'Space Grotesk', sans-serif;
-    outline: none;
-    cursor: pointer;
+    transition: 0.3s;
+    opacity: 0.7;
 }
 
-select option {
-    background: #0a0a0c; /* Dark background for options */
-    color: white;
+.social-icon:hover {
+    opacity: 1;
+    color: var(--primary);
+    transform: scale(1.1);
 }
 
-/* Category Borders & Glows */
-.cat-crush {
-    border-color: #ff9ff3 !important;
-    box-shadow: 0 0 10px rgba(255, 159, 243, 0.2);
+/* --- ANIMATIONS --- */
+@keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); } 
+    100% { transform: translateY(0px); }
 }
 
-.cat-rant {
-    border-color: #ff4757 !important;
-    box-shadow: 0 0 10px rgba(255, 71, 87, 0.2);
+@keyframes slideInRight {
+    0% { opacity: 0; transform: translateX(50px); }
+    100% { opacity: 1; transform: translateX(0); }
 }
 
-.cat-funny {
-    border-color: #eccc68 !important;
-    box-shadow: 0 0 10px rgba(236, 204, 104, 0.2);
+.animate-float { animation: float 3s ease-in-out infinite; }
+.animate-slide-in { animation: slideInRight 0.6s ease-out forwards; }
+
+/* --- RESPONSIVENESS (Mobile First) --- */
+@media (min-width: 768px) {
+    /* PC: About Grid splits to 2 columns */
+    .about-grid {
+        grid-template-columns: 1fr 1fr; 
+    }
 }
 
-.cat-scary {
-    border-color: #7bed9f !important;
-    box-shadow: 0 0 10px rgba(123, 237, 159, 0.2);
-}
+@media (max-width: 768px) {
+    /* Mobile Adjustments */
+    .navbar {
+        flex-direction: column;
+        padding: 1rem;
+        gap: 10px;
+    }
 
-/* Badge in the feed */
-.cat-badge {
-    font-size: 0.7rem;
-    padding: 2px 6px;
-    border-radius: 4px;
-    margin-left: 10px;
-    opacity: 0.8;
-    background: rgba(255,255,255,0.1);
-}
+    .nav-links {
+        width: 100%;
+        justify-content: center;
+        gap: 15px;
+        font-size: 0.9rem;
+        padding: 0;
+    }
+
+    .container {
+        width: 95%; 
+        padding: 1rem;
+    }
+
+    .logo { font-size: 2rem; }
+    .hero h1 { font-size: 2rem; }
+    
+    .grid { grid-template-columns: 1fr !important; }
+
+    div.logo[style*="font-size: 4rem"] {
