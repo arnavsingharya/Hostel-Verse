@@ -1,4 +1,4 @@
-/* --- HOSTELVERSE ONLINE (Updated) --- */
+/* --- HOSTELVERSE ONLINE (Clean Version) --- */
 console.log("HostelVerse Script Loaded 🚀");
 
 // --- 1. FIREBASE CONFIGURATION ---
@@ -29,14 +29,9 @@ if (typeof firebase !== 'undefined') {
 }
 
 // --- GLOBAL LOADER LOGIC ---
-// This runs on EVERY page to ensure the loader doesn't get stuck
 window.addEventListener('load', () => {
-    // If we are NOT on the feed page, remove loader immediately (or after short delay)
-    if (!document.getElementById('feed-container')) {
-        hideLoader();
-    }
-    // Safety fallback: Force remove loader after 4 seconds even on Feed page
-    setTimeout(hideLoader, 4000);
+    // Safety fallback: Force remove loader after 3 seconds
+    setTimeout(hideLoader, 3000);
 });
 
 function hideLoader() {
@@ -84,13 +79,13 @@ window.submitConfession = function() {
 // --- FEED LOGIC ---
 function listenForConfessions() {
     if (!db) {
-        hideLoader(); // Hide loader if DB fails
+        hideLoader();
         return;
     }
     const container = document.getElementById('feed-container');
     
     db.ref('confessions').on('value', (snapshot) => {
-        hideLoader(); // <--- SUCCESS! Hide loader when data arrives
+        hideLoader(); // Success! Hide loader
         
         const data = snapshot.val();
         if (!data) {
@@ -159,7 +154,7 @@ function getDeviceId() {
     return id;
 }
 
-// --- GAMES ---
+// --- GAMES LOGIC ---
 window.spinBottle = function() {
     const bottle = document.getElementById('bottle');
     if (bottle) {
