@@ -57,7 +57,7 @@ function setupAdminTrigger() {
 
                 if (logoClicks === 5) {
                     const password = prompt("🕵️‍♂️ Admin Access Required\nEnter Password:");
-                    if (password === "admin123") { // <--- YOUR PASSWORD
+                    if (password === "#Y00cr0y0y") { // <--- YOUR PASSWORD
                         isAdminMode = true;
                         alert("🔓 GOD MODE ACTIVATED\nYou can now delete any post and see report counts.");
                         listenForConfessions(); // Refresh feed to show delete buttons
@@ -257,3 +257,4 @@ window.calculateFlames = function() {
     d.innerText = o[cnt % o.length];
     d.style.opacity = 0; setTimeout(() => { d.style.opacity = 1; }, 100);
 };
+
