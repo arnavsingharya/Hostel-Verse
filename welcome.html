@@ -25,26 +25,59 @@
         </ul>
     </nav>
 
-    <div class="container" style="min-height: 80vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
+    <div class="container" style="min-height: 85vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
         
-        <div class="logo animate-float" style="font-size: 4.5rem; margin-bottom: 20px;">
+        <div class="live-badge">
+            <span style="font-size:0.6rem;">●</span> <span id="onlineCount">420</span> Students Online
+        </div>
+
+        <div class="logo animate-float" style="font-size: 4rem; margin-bottom: 10px;">
             Hostel<span>Verse</span> 🛸
         </div>
 
-        <p style="color: #ccc; font-size: 1.2rem; letter-spacing: 1px;">The Underground Network.</p>
+        <p style="color: #bbb; font-size: 1.1rem; letter-spacing: 0.5px; max-width: 400px; line-height: 1.6;">
+            The Underground Network.<br>
+            <span style="font-size: 0.9rem; opacity: 0.7;">No Snitches. No Names. Just Tea. ☕</span>
+        </p>
 
-        <a href="index.html" style="text-decoration: none;">
-            <button class="btn-primary" style="margin-top: 3rem; padding: 1rem 3rem; font-size: 1.2rem;">
-                Check the Feed 🚀
+        <div class="features-row">
+            <div class="feature-item">
+                <span class="feature-icon">🤫</span>
+                <span class="feature-text">100% Anon</span>
+            </div>
+            <div class="feature-item">
+                <span class="feature-icon">🔥</span>
+                <span class="feature-text">Trending</span>
+            </div>
+            <div class="feature-item">
+                <span class="feature-icon">🎲</span>
+                <span class="feature-text">Games</span>
+            </div>
+        </div>
+
+        <a href="index.html" style="text-decoration: none; width: 100%; max-width: 300px;">
+            <button class="btn-primary" style="padding: 1rem 2rem; font-size: 1.1rem;">
+                Enter The Feed 🚀
             </button>
         </a>
 
-        <button id="installBtn" class="btn-game" style="display: none; margin-top: 20px; border-color: #2ecc71; color: #2ecc71; padding: 10px 20px;">
+        <button id="installBtn" class="btn-game" style="display: none; margin-top: 15px; border-color: #2ecc71; color: #2ecc71; padding: 10px 20px; width: 100%; max-width: 300px;">
             Install App ⬇️
         </button>
+
+        <p style="margin-top: 30px; font-size: 0.8rem; opacity: 0.4;">&copy; 2026 HostelVerse Project</p>
 
     </div>
 
     <script src="script.js"></script>
+    <script>
+        // Simple Logic to Randomize "Online Users" to make it look active
+        const countSpan = document.getElementById('onlineCount');
+        if(countSpan) {
+            // Generates a random number between 120 and 450
+            let users = Math.floor(Math.random() * (450 - 120 + 1)) + 120;
+            countSpan.innerText = users;
+        }
+    </script>
 </body>
 </html>
