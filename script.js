@@ -1,4 +1,4 @@
-/* --- HOSTELVERSE ONLINE (With Report Feature) --- */
+/* --- HOSTELVERSE ONLINE (Trending + Secret Admin) --- */
 console.log("HostelVerse Script Loaded 🚀");
 
 // --- 1. FIREBASE CONFIGURATION ---
@@ -15,6 +15,8 @@ const firebaseConfig = {
 
 // --- 2. INITIALIZE CONNECTION ---
 let db;
+let isAdminMode = false; // Secret Admin Toggle
+let logoClicks = 0;      // Counter for secret trigger
 
 if (typeof firebase !== 'undefined') {
     try {
@@ -28,9 +30,10 @@ if (typeof firebase !== 'undefined') {
     console.error("❌ Firebase SDK not found.");
 }
 
-// --- GLOBAL LOADER LOGIC ---
+// --- GLOBAL LOADER & ADMIN TRIGGER ---
 window.addEventListener('load', () => {
     setTimeout(hideLoader, 3000);
+    setupAdminTrigger();
 });
 
 function hideLoader() {
@@ -38,6 +41,33 @@ function hideLoader() {
     if (loader) {
         loader.style.opacity = '0';
         setTimeout(() => { loader.style.display = 'none'; }, 500);
+    }
+}
+
+// 🕵️‍♂️ SECRET ADMIN LOGIC
+function setupAdminTrigger() {
+    const logo = document.querySelector('.logo');
+    if (logo) {
+        logo.addEventListener('click', (e) => {
+            // Only trigger on Feed page to avoid navigation issues
+            if(window.location.pathname.includes('index.html') || window.location.href.endsWith('/')) {
+                e.preventDefault(); // Stop page reload for a second
+                logoClicks++;
+                console.log("Secret Tap:", logoClicks);
+
+                if (logoClicks === 5) {
+                    const password = prompt("🕵️‍♂️ Admin Access Required\nEnter Password:");
+                    if (password === "admin123") { // <--- YOUR PASSWORD
+                        isAdminMode = true;
+                        alert("🔓 GOD MODE ACTIVATED\nYou can now delete any post and see report counts.");
+                        listenForConfessions(); // Refresh feed to show delete buttons
+                    } else {
+                        alert("❌ Access Denied");
+                    }
+                    logoClicks = 0; // Reset
+                }
+            }
+        });
     }
 }
 
@@ -64,7 +94,7 @@ window.submitConfession = function() {
         text: text,
         avatar: avatars[Math.floor(Math.random() * avatars.length)],
         likes: 0,
-        reports: 0, // Start with 0 reports
+        reports: 0,
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         deviceId: getDeviceId(),
         timestamp: firebase.database.ServerValue.TIMESTAMP
@@ -78,25 +108,21 @@ window.submitConfession = function() {
 
 // --- FEED LOGIC ---
 function listenForConfessions() {
-    if (!db) {
-        hideLoader();
-        return;
-    }
+    if (!db) { hideLoader(); return; }
     const container = document.getElementById('feed-container');
     
     db.ref('confessions').on('value', (snapshot) => {
         hideLoader();
-        
         const data = snapshot.val();
         if (!data) {
             container.innerHTML = `<p style="text-align:center; opacity:0.5; margin-top: 2rem;">No tea yet.</p>`;
             return;
         }
         
-        // Filter out posts with more than 5 reports (Auto-Moderation)
+        // Filter reports (unless Admin)
         const confessions = Object.keys(data)
             .map(key => ({ firebaseKey: key, ...data[key] }))
-            .filter(post => (post.reports || 0) < 5); 
+            .filter(post => isAdminMode || (post.reports || 0) < 5); 
 
         confessions.sort((a, b) => b.timestamp - a.timestamp);
         renderFeed(container, confessions);
@@ -112,28 +138,42 @@ function renderFeed(container, confessions) {
         const isLiked = likedPosts.includes(post.firebaseKey);
         const isReported = reportedPosts.includes(post.firebaseKey);
         const isMine = post.deviceId === myDeviceId;
-        const likeColor = isLiked ? "#bc13fe" : "white";
-        const reportColor = isReported ? "#ff4757" : "rgba(255,255,255,0.3)";
         
-        const deleteBtn = isMine 
+        // 🔥 MISSION 3: TRENDING LOGIC
+        const isTrending = (post.likes || 0) >= 10;
+        const trendingClass = isTrending ? 'trending-card' : '';
+        const trendingBadge = isTrending ? '<span class="trending-badge">🔥 TRENDING</span>' : '';
+
+        // 🕵️‍♂️ MISSION 2: ADMIN CONTROLS
+        // If Admin, show Delete button on EVERYTHING. If not, only show on My Posts.
+        const showDelete = isAdminMode || isMine;
+        
+        const deleteBtn = showDelete 
             ? `<button onclick="deletePost('${post.firebaseKey}')" style="color:#ff4757; background:rgba(255,71,87,0.1); border:1px solid #ff4757; padding:5px 10px; border-radius:8px; margin-left:10px; cursor:pointer;">🗑️</button>` 
             : '';
 
-        // Only show report button if it's NOT my post
-        const reportBtn = !isMine
-            ? `<button onclick="reportPost('${post.firebaseKey}', ${post.reports || 0})" style="background:none; border:none; color:${reportColor}; cursor:pointer; font-size: 1.2rem; margin-left:auto;" title="Report this">🚩</button>`
+        const reportInfo = isAdminMode 
+            ? `<span class="admin-badge">⚠️ ${post.reports || 0} Reports</span>` 
+            : '';
+
+        const likeColor = isLiked ? "#bc13fe" : "white";
+        const reportColor = isReported ? "#ff4757" : "rgba(255,255,255,0.3)";
+        
+        const reportBtn = (!isMine && !isAdminMode)
+            ? `<button onclick="reportPost('${post.firebaseKey}', ${post.reports || 0})" style="background:none; border:none; color:${reportColor}; cursor:pointer; font-size: 1.2rem; margin-left:auto;" title="Report">🚩</button>`
             : '<span style="margin-left:auto;"></span>';
 
         return `
-        <div class="glass-card">
+        <div class="glass-card ${trendingClass}">
             <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
                 <span style="font-size:1.5rem;">${post.avatar}</span>
                 <small style="opacity:0.5;">Anonymous • ${post.time}</small>
+                <div style="margin-left: auto;">${trendingBadge}${reportInfo}</div>
             </div>
             <p style="white-space: pre-wrap; margin-bottom: 15px;">${post.text}</p>
             <div style="display:flex; align-items:center; border-top:1px solid rgba(255,255,255,0.1); padding-top:10px;">
-                <button onclick="likePost('${post.firebaseKey}', ${post.likes})" style="background:none; border:none; color:${likeColor}; cursor:pointer; font-weight:bold; margin-right: 15px;">
-                    ${isLiked ? '🔥' : '🕯️'} ${post.likes}
+                <button onclick="likePost('${post.firebaseKey}', ${post.likes || 0})" style="background:none; border:none; color:${likeColor}; cursor:pointer; font-weight:bold; margin-right: 15px;">
+                    ${isLiked ? '🔥' : '🕯️'} ${post.likes || 0}
                 </button>
                 
                 ${reportBtn}
@@ -154,22 +194,18 @@ window.likePost = function(key, currentLikes) {
 
 window.reportPost = function(key, currentReports) {
     let reportedPosts = JSON.parse(localStorage.getItem('reportedPosts') || '[]');
-    
-    if (reportedPosts.includes(key)) {
-        alert("You already reported this!");
-        return;
-    }
+    if (reportedPosts.includes(key)) { alert("Already reported!"); return; }
 
-    if (confirm("Report this post as inappropriate?")) {
+    if (confirm("Report this post?")) {
         db.ref('confessions/' + key).update({ reports: currentReports + 1 });
         reportedPosts.push(key);
         localStorage.setItem('reportedPosts', JSON.stringify(reportedPosts));
-        alert("Report submitted. Thanks for keeping it clean.");
+        alert("Report submitted.");
     }
 };
 
 window.deletePost = function(key) {
-    if (confirm("Delete this?")) {
+    if (confirm(isAdminMode ? "ADMIN DELETE: Are you sure?" : "Delete your post?")) {
         db.ref('confessions/' + key).remove();
     }
 };
