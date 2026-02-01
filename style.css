@@ -213,3 +213,66 @@ select option { background-color: #0a0a0c; color: white; padding: 10px; }
 .privacy-icon {
     font-size: 1.2rem;
 }
+
+/* --- COMMENT SECTION STYLES --- */
+
+/* The container that hides/shows */
+.comment-section {
+    display: none; /* Hidden by default */
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    animation: slideDown 0.3s ease-out;
+}
+
+/* Keyframe for smooth opening */
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* The List of Comments */
+.comments-list {
+    max-height: 200px;
+    overflow-y: auto; /* Scroll if too many comments */
+    margin-bottom: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* Individual Comment Bubble */
+.comment-bubble {
+    background: rgba(0, 0, 0, 0.4);
+    padding: 8px 12px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    border-left: 3px solid var(--accent); /* Blue accent line */
+}
+
+/* Reply Input Area */
+.reply-area {
+    display: flex;
+    gap: 10px;
+}
+
+.reply-input {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    border-radius: 20px;
+    padding: 8px 15px;
+    color: white;
+    font-size: 0.9rem;
+    outline: none;
+}
+
+.reply-btn {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.8rem;
+}
