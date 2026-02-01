@@ -1,4 +1,4 @@
-/* --- HOSTELVERSE ONLINE (Clean Version - No MLT) --- */
+/* --- HOSTELVERSE ONLINE (With Report Feature) --- */
 console.log("HostelVerse Script Loaded 🚀");
 
 // --- 1. FIREBASE CONFIGURATION ---
@@ -30,7 +30,6 @@ if (typeof firebase !== 'undefined') {
 
 // --- GLOBAL LOADER LOGIC ---
 window.addEventListener('load', () => {
-    // Safety fallback: Force remove loader after 3 seconds
     setTimeout(hideLoader, 3000);
 });
 
@@ -65,6 +64,7 @@ window.submitConfession = function() {
         text: text,
         avatar: avatars[Math.floor(Math.random() * avatars.length)],
         likes: 0,
+        reports: 0, // Start with 0 reports
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         deviceId: getDeviceId(),
         timestamp: firebase.database.ServerValue.TIMESTAMP
@@ -85,7 +85,7 @@ function listenForConfessions() {
     const container = document.getElementById('feed-container');
     
     db.ref('confessions').on('value', (snapshot) => {
-        hideLoader(); // Success! Hide loader
+        hideLoader();
         
         const data = snapshot.val();
         if (!data) {
@@ -93,7 +93,11 @@ function listenForConfessions() {
             return;
         }
         
-        const confessions = Object.keys(data).map(key => ({ firebaseKey: key, ...data[key] }));
+        // Filter out posts with more than 5 reports (Auto-Moderation)
+        const confessions = Object.keys(data)
+            .map(key => ({ firebaseKey: key, ...data[key] }))
+            .filter(post => (post.reports || 0) < 5); 
+
         confessions.sort((a, b) => b.timestamp - a.timestamp);
         renderFeed(container, confessions);
     });
@@ -102,15 +106,23 @@ function listenForConfessions() {
 function renderFeed(container, confessions) {
     const myDeviceId = getDeviceId();
     const likedPosts = JSON.parse(localStorage.getItem('likedPosts') || '[]');
+    const reportedPosts = JSON.parse(localStorage.getItem('reportedPosts') || '[]');
 
     container.innerHTML = confessions.map(post => {
         const isLiked = likedPosts.includes(post.firebaseKey);
+        const isReported = reportedPosts.includes(post.firebaseKey);
         const isMine = post.deviceId === myDeviceId;
         const likeColor = isLiked ? "#bc13fe" : "white";
+        const reportColor = isReported ? "#ff4757" : "rgba(255,255,255,0.3)";
         
         const deleteBtn = isMine 
-            ? `<button onclick="deletePost('${post.firebaseKey}')" style="color:#ff4757; background:rgba(255,71,87,0.1); border:1px solid #ff4757; padding:5px 10px; border-radius:8px; margin-left:auto; cursor:pointer;">🗑️</button>` 
+            ? `<button onclick="deletePost('${post.firebaseKey}')" style="color:#ff4757; background:rgba(255,71,87,0.1); border:1px solid #ff4757; padding:5px 10px; border-radius:8px; margin-left:10px; cursor:pointer;">🗑️</button>` 
             : '';
+
+        // Only show report button if it's NOT my post
+        const reportBtn = !isMine
+            ? `<button onclick="reportPost('${post.firebaseKey}', ${post.reports || 0})" style="background:none; border:none; color:${reportColor}; cursor:pointer; font-size: 1.2rem; margin-left:auto;" title="Report this">🚩</button>`
+            : '<span style="margin-left:auto;"></span>';
 
         return `
         <div class="glass-card">
@@ -119,10 +131,12 @@ function renderFeed(container, confessions) {
                 <small style="opacity:0.5;">Anonymous • ${post.time}</small>
             </div>
             <p style="white-space: pre-wrap; margin-bottom: 15px;">${post.text}</p>
-            <div style="display:flex; align-items:center; justify-content: space-between; border-top:1px solid rgba(255,255,255,0.1); padding-top:10px;">
-                <button onclick="likePost('${post.firebaseKey}', ${post.likes})" style="background:none; border:none; color:${likeColor}; cursor:pointer; font-weight:bold;">
+            <div style="display:flex; align-items:center; border-top:1px solid rgba(255,255,255,0.1); padding-top:10px;">
+                <button onclick="likePost('${post.firebaseKey}', ${post.likes})" style="background:none; border:none; color:${likeColor}; cursor:pointer; font-weight:bold; margin-right: 15px;">
                     ${isLiked ? '🔥' : '🕯️'} ${post.likes}
                 </button>
+                
+                ${reportBtn}
                 ${deleteBtn}
             </div>
         </div>`;
@@ -136,6 +150,22 @@ window.likePost = function(key, currentLikes) {
     db.ref('confessions/' + key).update({ likes: currentLikes + 1 });
     likedPosts.push(key);
     localStorage.setItem('likedPosts', JSON.stringify(likedPosts));
+};
+
+window.reportPost = function(key, currentReports) {
+    let reportedPosts = JSON.parse(localStorage.getItem('reportedPosts') || '[]');
+    
+    if (reportedPosts.includes(key)) {
+        alert("You already reported this!");
+        return;
+    }
+
+    if (confirm("Report this post as inappropriate?")) {
+        db.ref('confessions/' + key).update({ reports: currentReports + 1 });
+        reportedPosts.push(key);
+        localStorage.setItem('reportedPosts', JSON.stringify(reportedPosts));
+        alert("Report submitted. Thanks for keeping it clean.");
+    }
 };
 
 window.deletePost = function(key) {
