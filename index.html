@@ -23,6 +23,63 @@
     
     <link rel="stylesheet" href="style.css">
     </head>
+   <body>
+    <div id="loader">
+        <div class="spinner"></div>
+    </div>
+
+    <nav class="navbar">
+        ```
+
+---
+
+### 3. Update `games.html` (Add "Most Likely To")
+Add this new card inside your `<div class="grid">` container. It fits perfectly alongside *Truth or Dare* and *Never Have I Ever*.
+
+```html
+            <div class="glass-card">
+                <h3>👉 Most Likely To...</h3>
+                <p id="mlt-display" style="min-height: 50px; display:flex; align-items:center; justify-content:center;">Who fits the description?</p>
+                <button onclick="nextMostLikely()" class="btn-primary" style="background: var(--secondary); color: #000;">Next Statement ➡️</button>
+            </div>
+
+            <div class="glass-card">
+                <h3>❤️ FLAMES Calculator</h3>
+                ```
+
+---
+
+### 4. Update `script.js`
+Replace your existing logic or append these updates to handle the loader and the new game.
+
+**A. Modify `listenForConfessions` (To hide loader when data loads):**
+
+```javascript
+// --- FEED LOGIC ---
+function listenForConfessions() {
+    if (!db) return;
+    const container = document.getElementById('feed-container');
+    const loader = document.getElementById('loader'); // Get loader
+    
+    db.ref('confessions').on('value', (snapshot) => {
+        const data = snapshot.val();
+        
+        // HIDE LOADER ONCE DATA ARRIVES
+        if (loader) {
+            loader.style.opacity = '0';
+            setTimeout(() => { loader.style.display = 'none'; }, 500);
+        }
+
+        if (!data) {
+            container.innerHTML = `<p style="text-align:center; opacity:0.5; margin-top: 2rem;">No tea yet.</p>`;
+            return;
+        }
+        
+        const confessions = Object.keys(data).map(key => ({ firebaseKey: key, ...data[key] }));
+        confessions.sort((a, b) => b.timestamp - a.timestamp);
+        renderFeed(container, confessions);
+    });
+}
 <body>
     <nav class="navbar">
         <div class="logo">Hostel<span>Verse</span></div>
@@ -51,6 +108,7 @@
 </body>
 
 </html>
+
 
 
 
