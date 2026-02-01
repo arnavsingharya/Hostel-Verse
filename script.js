@@ -1,4 +1,4 @@
-/* --- HOSTELVERSE ONLINE (God Mode + Comment Delete) --- */
+/* --- HOSTELVERSE ONLINE (Fixed Admin & Deletes) --- */
 console.log("HostelVerse Script Loaded 🚀");
 
 // --- 1. FIREBASE CONFIGURATION ---
@@ -54,13 +54,22 @@ function setupAdminTrigger() {
                 logoClicks++;
                 
                 if (logoClicks === 5) {
-                    const password = prompt("🕵️‍♂️ Admin Access Required\nEnter Password:");
-                    if (password === "(#Y00cr0y0y)") { 
-                        isAdminMode = true;
-                        alert("🔓 GOD MODE ACTIVATED: You can now delete posts & comments.");
-                        listenForConfessions(); // Refresh feed to show delete buttons
-                    } else {
-                        alert("❌ Access Denied");
+                    let password = prompt("🕵️‍♂️ Admin Access Required\nEnter Password:");
+                    if (password !== null) {
+                        password = password.trim(); // Removes extra spaces
+                        
+                        // FIX: Password is now exactly #Y00cr0y0y
+                        if (password === "#Y00cr0y0y") { 
+                            isAdminMode = true;
+                            alert("🔓 GOD MODE ACTIVATED\nYou can now delete Posts and Comments.");
+                            
+                            // FORCE REFRESH THE FEED TO SHOW DELETE BUTTONS
+                            const container = document.getElementById('feed-container');
+                            if(container) container.innerHTML = '<p style="text-align:center;">Refreshing Admin Tools...</p>';
+                            listenForConfessions(); 
+                        } else {
+                            alert("❌ Access Denied");
+                        }
                     }
                     logoClicks = 0;
                 }
@@ -85,7 +94,6 @@ document.addEventListener('DOMContentLoaded', () => {
 function setupLiveVibe() {
     const selector = document.getElementById('categorySelect');
     const input = document.getElementById('confessionInput');
-    
     if (selector && input) {
         selector.addEventListener('change', function() {
             input.classList.remove('cat-crush', 'cat-rant', 'cat-funny', 'cat-scary');
@@ -101,7 +109,6 @@ function setupLiveVibe() {
 function setupCharCounter() {
     const input = document.getElementById('confessionInput');
     const counter = document.getElementById('charCount');
-    
     if (input && counter) {
         input.addEventListener('input', function() {
             const current = this.value.length;
@@ -143,11 +150,9 @@ window.addTag = function(tagName) {
 window.submitConfession = function() {
     const input = document.getElementById('confessionInput');
     const categorySelect = document.getElementById('categorySelect');
-    
     if (!input) return;
     const text = input.value.trim();
     if (!text) return alert("Bhai kuch toh likh!");
-
     if (!db) return alert("Database connecting... try again in a second.");
 
     const category = categorySelect ? categorySelect.value : 'general';
@@ -174,6 +179,9 @@ function listenForConfessions() {
     if (!db) { hideLoader(); return; }
     const container = document.getElementById('feed-container');
     
+    // Detach old listener to prevent duplicates if God Mode is toggled
+    db.ref('confessions').off();
+
     db.ref('confessions').on('value', (snapshot) => {
         hideLoader();
         const data = snapshot.val();
@@ -191,7 +199,7 @@ function listenForConfessions() {
     });
 }
 
-// --- RENDER FEED (NOW WITH ADMIN COMMENT DELETE) ---
+// --- RENDER FEED (FIXED COMMENT DELETE) ---
 function renderFeed(container, confessions) {
     const myDeviceId = getDeviceId();
     const likedPosts = JSON.parse(localStorage.getItem('likedPosts') || '[]');
@@ -200,14 +208,16 @@ function renderFeed(container, confessions) {
         const isLiked = likedPosts.includes(post.firebaseKey);
         const likeColor = isLiked ? "#bc13fe" : "white";
         
-        // --- COMMENT LOGIC START ---
+        // --- FIXED COMMENT LOGIC START ---
         const commentsObj = post.comments || {};
         const commentCount = Object.keys(commentsObj).length;
         
-        // Loop through comments and add DELETE button if Admin
+        // We use Object.entries to get the ID (key) and the Data (value)
         const commentsHTML = Object.entries(commentsObj).map(([commentId, c]) => {
+            
+            // Show Trash Can ONLY if Admin
             const deleteCommentBtn = isAdminMode 
-                ? `<span onclick="deleteComment('${post.firebaseKey}', '${commentId}')" style="cursor:pointer; float:right; font-size:0.8rem; opacity:0.6;">🗑️</span>` 
+                ? `<span onclick="deleteComment('${post.firebaseKey}', '${commentId}')" style="cursor:pointer; float:right; font-size:1rem; opacity:0.8; color:#ff4757;">🗑️</span>` 
                 : '';
 
             return `
@@ -218,7 +228,7 @@ function renderFeed(container, confessions) {
             </div>
             `;
         }).join('');
-        // --- COMMENT LOGIC END ---
+        // --- FIXED COMMENT LOGIC END ---
 
         let categoryClass = '';
         let categoryEmoji = '';
@@ -299,7 +309,7 @@ window.submitComment = function(postKey) {
     db.ref('confessions/' + postKey + '/comments').push(newComment);
 };
 
-// 🗑️ NEW: DELETE COMMENT FUNCTION
+// 🗑️ FIXED: DELETE COMMENT FUNCTION
 window.deleteComment = function(postKey, commentKey) {
     if (confirm("ADMIN: Delete this comment permanently?")) {
         db.ref('confessions/' + postKey + '/comments/' + commentKey).remove()
