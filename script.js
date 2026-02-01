@@ -1,4 +1,4 @@
-/* --- HOSTELVERSE ONLINE (Final Build) --- */
+/* --- HOSTELVERSE ONLINE (Final Ultimate Build) --- */
 console.log("HostelVerse Script Loaded 🚀");
 
 // --- 1. FIREBASE CONFIGURATION ---
@@ -44,7 +44,7 @@ function hideLoader() {
     }
 }
 
-// 🕵️‍♂️ SECRET ADMIN LOGIC
+// 🕵️‍♂️ SECRET ADMIN LOGIC (Tap Logo 5 Times)
 function setupAdminTrigger() {
     const logo = document.querySelector('.logo');
     if (logo) {
@@ -55,10 +55,10 @@ function setupAdminTrigger() {
                 
                 if (logoClicks === 5) {
                     const password = prompt("🕵️‍♂️ Admin Access Required\nEnter Password:");
-                    if (password === "(#Y00cr0y0y)") { // YOUR PASSWORD
+                    if (password === "(#Y00cr0y0y)") { 
                         isAdminMode = true;
                         alert("🔓 GOD MODE ACTIVATED");
-                        listenForConfessions();
+                        listenForConfessions(); // Refresh feed to show delete buttons
                     } else {
                         alert("❌ Access Denied");
                     }
@@ -74,9 +74,11 @@ const avatars = ['🦊', '🐱', '🦄', '👻', '🤖', '👾', '🐸', '🦁',
 
 // --- INITIALIZATION ---
 document.addEventListener('DOMContentLoaded', () => {
+    // If we are on the Feed page, load posts
     if (document.getElementById('feed-container')) {
         listenForConfessions();
     }
+    // Activate Confession Tools
     setupLiveVibe();
     setupCharCounter();
 });
@@ -88,7 +90,10 @@ function setupLiveVibe() {
     
     if (selector && input) {
         selector.addEventListener('change', function() {
+            // Remove old classes
             input.classList.remove('cat-crush', 'cat-rant', 'cat-funny', 'cat-scary');
+            
+            // Add new glow
             const val = this.value;
             if (val !== 'general') {
                 input.classList.add('cat-' + val);
@@ -106,8 +111,12 @@ function setupCharCounter() {
         input.addEventListener('input', function() {
             const current = this.value.length;
             counter.innerText = `${current} / 280`;
-            if (current >= 280) counter.classList.add('limit-reached');
-            else counter.classList.remove('limit-reached');
+            
+            if (current >= 280) {
+                counter.classList.add('limit-reached');
+            } else {
+                counter.classList.remove('limit-reached');
+            }
         });
     }
 }
@@ -123,12 +132,24 @@ window.rollDicePrompt = function() {
     if (input) {
         input.value = prompts[Math.floor(Math.random() * prompts.length)];
         input.focus();
+        // Update counter manually
         const counter = document.getElementById('charCount');
         if(counter) counter.innerText = `${input.value.length} / 280`;
     }
 };
 
-// --- CONFESSION LOGIC ---
+// #️⃣ ADD HASHTAG LOGIC
+window.addTag = function(tagName) {
+    const input = document.getElementById('confessionInput');
+    if (input) {
+        input.value += (input.value.length > 0 ? " " : "") + tagName;
+        input.focus();
+        const counter = document.getElementById('charCount');
+        if(counter) counter.innerText = `${input.value.length} / 280`;
+    }
+};
+
+// --- CONFESSION SUBMISSION ---
 window.submitConfession = function() {
     const input = document.getElementById('confessionInput');
     const categorySelect = document.getElementById('categorySelect');
@@ -154,11 +175,11 @@ window.submitConfession = function() {
 
     db.ref('confessions').push(newConfession, (error) => {
         if (error) alert("Error: " + error.message);
-        else window.location.href = 'index.html';
+        else window.location.href = 'index.html'; // Redirect to feed
     });
 };
 
-// --- FEED LOGIC ---
+// --- FEED LOGIC (LISTENER) ---
 function listenForConfessions() {
     if (!db) { hideLoader(); return; }
     const container = document.getElementById('feed-container');
@@ -171,15 +192,18 @@ function listenForConfessions() {
             return;
         }
         
+        // Convert object to array and filter out bad posts (unless Admin)
         const confessions = Object.keys(data)
             .map(key => ({ firebaseKey: key, ...data[key] }))
             .filter(post => isAdminMode || (post.reports || 0) < 5); 
 
+        // Sort by newest first
         confessions.sort((a, b) => b.timestamp - a.timestamp);
         renderFeed(container, confessions);
     });
 }
 
+// --- RENDER FEED (NOW WITH COMMENTS!) ---
 function renderFeed(container, confessions) {
     const myDeviceId = getDeviceId();
     const likedPosts = JSON.parse(localStorage.getItem('likedPosts') || '[]');
@@ -187,54 +211,107 @@ function renderFeed(container, confessions) {
 
     container.innerHTML = confessions.map(post => {
         const isLiked = likedPosts.includes(post.firebaseKey);
-        const isReported = reportedPosts.includes(post.firebaseKey);
-        const isMine = post.deviceId === myDeviceId;
+        const likeColor = isLiked ? "#bc13fe" : "white";
         
-        const isTrending = (post.likes || 0) >= 10;
-        const trendingClass = isTrending ? 'trending-card' : '';
-        const trendingBadge = isTrending ? '<span class="trending-badge">🔥 TRENDING</span>' : '';
+        // --- COMMENT LOGIC START ---
+        const commentsObj = post.comments || {};
+        const commentCount = Object.keys(commentsObj).length;
+        
+        const commentsHTML = Object.values(commentsObj).map(c => `
+            <div class="comment-bubble">
+                <strong style="color: #ccc; font-size: 0.7rem;">${c.avatar} • ${c.time}</strong><br>
+                ${c.text}
+            </div>
+        `).join('');
+        // --- COMMENT LOGIC END ---
 
+        // Vibe/Category Styling
         let categoryClass = '';
         let categoryEmoji = '';
         if (post.category === 'crush') { categoryClass = 'cat-crush'; categoryEmoji = '❤️ Crush'; }
         else if (post.category === 'rant') { categoryClass = 'cat-rant'; categoryEmoji = '😡 Rant'; }
         else if (post.category === 'funny') { categoryClass = 'cat-funny'; categoryEmoji = '😂 Funny'; }
         else if (post.category === 'scary') { categoryClass = 'cat-scary'; categoryEmoji = '👻 Scary'; }
-
+        
         const catBadge = categoryEmoji ? `<span class="cat-badge">${categoryEmoji}</span>` : '';
+        const trendingBadge = (post.likes || 0) >= 10 ? '<span class="trending-badge">🔥 TRENDING</span>' : '';
+
+        // Admin/Owner Tools
+        const isMine = post.deviceId === myDeviceId;
         const showDelete = isAdminMode || isMine;
         const deleteBtn = showDelete 
             ? `<button onclick="deletePost('${post.firebaseKey}')" style="color:#ff4757; background:rgba(255,71,87,0.1); border:1px solid #ff4757; padding:5px 10px; border-radius:8px; margin-left:10px; cursor:pointer;">🗑️</button>` 
             : '';
 
-        const reportInfo = isAdminMode ? `<span class="admin-badge">⚠️ ${post.reports || 0} Reports</span>` : '';
-        const likeColor = isLiked ? "#bc13fe" : "white";
-        const reportColor = isReported ? "#ff4757" : "rgba(255,255,255,0.3)";
-        
         const reportBtn = (!isMine && !isAdminMode)
-            ? `<button onclick="reportPost('${post.firebaseKey}', ${post.reports || 0})" style="background:none; border:none; color:${reportColor}; cursor:pointer; font-size: 1.2rem; margin-left:auto;" title="Report">🚩</button>`
+            ? `<button onclick="reportPost('${post.firebaseKey}', ${post.reports || 0})" style="background:none; border:none; color:rgba(255,255,255,0.3); cursor:pointer; font-size: 1.2rem; margin-left:auto;">🚩</button>`
             : '<span style="margin-left:auto;"></span>';
 
         return `
-        <div class="glass-card ${trendingClass} ${categoryClass}">
+        <div class="glass-card ${categoryClass}">
             <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
                 <span style="font-size:1.5rem;">${post.avatar}</span>
                 <small style="opacity:0.5;">Anonymous • ${post.time}</small>
-                <div style="margin-left: auto;">${trendingBadge}${catBadge}${reportInfo}</div>
+                <div style="margin-left:auto;">${trendingBadge}${catBadge}</div>
             </div>
+            
             <p style="white-space: pre-wrap; margin-bottom: 15px;">${post.text}</p>
+            
             <div style="display:flex; align-items:center; border-top:1px solid rgba(255,255,255,0.1); padding-top:10px;">
                 <button onclick="likePost('${post.firebaseKey}', ${post.likes || 0})" style="background:none; border:none; color:${likeColor}; cursor:pointer; font-weight:bold; margin-right: 15px;">
                     ${isLiked ? '🔥' : '🕯️'} ${post.likes || 0}
                 </button>
+                
+                <button onclick="toggleComments('${post.firebaseKey}')" style="background:none; border:none; color:white; cursor:pointer; font-size: 0.9rem; opacity: 0.8;">
+                    💬 ${commentCount}
+                </button>
+
                 ${reportBtn}
                 ${deleteBtn}
+            </div>
+
+            <div id="comments-${post.firebaseKey}" class="comment-section">
+                <div class="comments-list">
+                    ${commentCount > 0 ? commentsHTML : '<small style="opacity:0.5; text-align:center;">No comments yet. Be the first!</small>'}
+                </div>
+                
+                <div class="reply-area">
+                    <input type="text" id="input-${post.firebaseKey}" class="reply-input" placeholder="Type a reply...">
+                    <button onclick="submitComment('${post.firebaseKey}')" class="reply-btn">Send 🚀</button>
+                </div>
             </div>
         </div>`;
     }).join('');
 }
 
-// --- ACTIONS ---
+// --- COMMENT ACTIONS ---
+window.toggleComments = function(key) {
+    const section = document.getElementById(`comments-${key}`);
+    if (section) {
+        section.style.display = (section.style.display === "block") ? "none" : "block";
+    }
+};
+
+window.submitComment = function(postKey) {
+    const input = document.getElementById(`input-${postKey}`);
+    if (!input) return;
+    
+    const text = input.value.trim();
+    if (!text) return alert("Empty comment?");
+
+    const newComment = {
+        text: text,
+        avatar: avatars[Math.floor(Math.random() * avatars.length)],
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        timestamp: Date.now()
+    };
+
+    db.ref('confessions/' + postKey + '/comments').push(newComment, (error) => {
+        if (error) alert("Error: " + error.message);
+    });
+};
+
+// --- ACTIONS (LIKE, REPORT, DELETE) ---
 window.likePost = function(key, currentLikes) {
     let likedPosts = JSON.parse(localStorage.getItem('likedPosts') || '[]');
     if (likedPosts.includes(key)) return;
@@ -325,20 +402,3 @@ window.addEventListener('beforeinstallprompt', (e) => {
         });
     }
 });
-
-/* --- ADD TAG FUNCTION --- */
-window.addTag = function(tagName) {
-    const input = document.getElementById('confessionInput');
-    if (input) {
-        // Add the tag to the text, ensuring a space before it
-        input.value += (input.value.length > 0 ? " " : "") + tagName;
-        input.focus();
-        
-        // Update the character counter manually
-        const counter = document.getElementById('charCount');
-        if(counter) {
-            const current = input.value.length;
-            counter.innerText = `${current} / 280`;
-        }
-    }
-};
