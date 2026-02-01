@@ -1,4 +1,4 @@
-/* --- HOSTELVERSE ONLINE (Clean Version) --- */
+/* --- HOSTELVERSE ONLINE (Clean Version - No MLT) --- */
 console.log("HostelVerse Script Loaded 🚀");
 
 // --- 1. FIREBASE CONFIGURATION ---
@@ -178,13 +178,6 @@ const nhie = ["Never eaten someone else's tiffin.", "Never called teacher 'Mummy
 window.nextNeverHaveIEver = function() {
     const d = document.getElementById('nhie-display');
     if (d) d.innerText = nhie[Math.floor(Math.random() * nhie.length)];
-};
-
-const mlt = ["Most likely to sleep through a fire alarm.", "Most likely to become a billionaire by accident.", "Most likely to get married first.", "Most likely to argue with the professor.", "Most likely to lose their room key.", "Most likely to become a travel vlogger.", "Most likely to survive a zombie apocalypse.", "Most likely to forget their own birthday.", "Most likely to get arrested for something stupid."];
-
-window.nextMostLikely = function() {
-    const d = document.getElementById('mlt-display');
-    if (d) d.innerText = mlt[Math.floor(Math.random() * mlt.length)];
 };
 
 window.calculateFlames = function() {
