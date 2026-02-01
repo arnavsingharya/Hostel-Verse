@@ -1,4 +1,4 @@
-/* --- HOSTELVERSE ONLINE (Final Ultimate Build) --- */
+/* --- HOSTELVERSE ONLINE (God Mode + Comment Delete) --- */
 console.log("HostelVerse Script Loaded 🚀");
 
 // --- 1. FIREBASE CONFIGURATION ---
@@ -57,7 +57,7 @@ function setupAdminTrigger() {
                     const password = prompt("🕵️‍♂️ Admin Access Required\nEnter Password:");
                     if (password === "(#Y00cr0y0y)") { 
                         isAdminMode = true;
-                        alert("🔓 GOD MODE ACTIVATED");
+                        alert("🔓 GOD MODE ACTIVATED: You can now delete posts & comments.");
                         listenForConfessions(); // Refresh feed to show delete buttons
                     } else {
                         alert("❌ Access Denied");
@@ -74,11 +74,9 @@ const avatars = ['🦊', '🐱', '🦄', '👻', '🤖', '👾', '🐸', '🦁',
 
 // --- INITIALIZATION ---
 document.addEventListener('DOMContentLoaded', () => {
-    // If we are on the Feed page, load posts
     if (document.getElementById('feed-container')) {
         listenForConfessions();
     }
-    // Activate Confession Tools
     setupLiveVibe();
     setupCharCounter();
 });
@@ -90,10 +88,7 @@ function setupLiveVibe() {
     
     if (selector && input) {
         selector.addEventListener('change', function() {
-            // Remove old classes
             input.classList.remove('cat-crush', 'cat-rant', 'cat-funny', 'cat-scary');
-            
-            // Add new glow
             const val = this.value;
             if (val !== 'general') {
                 input.classList.add('cat-' + val);
@@ -111,12 +106,8 @@ function setupCharCounter() {
         input.addEventListener('input', function() {
             const current = this.value.length;
             counter.innerText = `${current} / 280`;
-            
-            if (current >= 280) {
-                counter.classList.add('limit-reached');
-            } else {
-                counter.classList.remove('limit-reached');
-            }
+            if (current >= 280) counter.classList.add('limit-reached');
+            else counter.classList.remove('limit-reached');
         });
     }
 }
@@ -132,7 +123,6 @@ window.rollDicePrompt = function() {
     if (input) {
         input.value = prompts[Math.floor(Math.random() * prompts.length)];
         input.focus();
-        // Update counter manually
         const counter = document.getElementById('charCount');
         if(counter) counter.innerText = `${input.value.length} / 280`;
     }
@@ -175,7 +165,7 @@ window.submitConfession = function() {
 
     db.ref('confessions').push(newConfession, (error) => {
         if (error) alert("Error: " + error.message);
-        else window.location.href = 'index.html'; // Redirect to feed
+        else window.location.href = 'index.html';
     });
 };
 
@@ -192,22 +182,19 @@ function listenForConfessions() {
             return;
         }
         
-        // Convert object to array and filter out bad posts (unless Admin)
         const confessions = Object.keys(data)
             .map(key => ({ firebaseKey: key, ...data[key] }))
             .filter(post => isAdminMode || (post.reports || 0) < 5); 
 
-        // Sort by newest first
         confessions.sort((a, b) => b.timestamp - a.timestamp);
         renderFeed(container, confessions);
     });
 }
 
-// --- RENDER FEED (NOW WITH COMMENTS!) ---
+// --- RENDER FEED (NOW WITH ADMIN COMMENT DELETE) ---
 function renderFeed(container, confessions) {
     const myDeviceId = getDeviceId();
     const likedPosts = JSON.parse(localStorage.getItem('likedPosts') || '[]');
-    const reportedPosts = JSON.parse(localStorage.getItem('reportedPosts') || '[]');
 
     container.innerHTML = confessions.map(post => {
         const isLiked = likedPosts.includes(post.firebaseKey);
@@ -217,15 +204,22 @@ function renderFeed(container, confessions) {
         const commentsObj = post.comments || {};
         const commentCount = Object.keys(commentsObj).length;
         
-        const commentsHTML = Object.values(commentsObj).map(c => `
+        // Loop through comments and add DELETE button if Admin
+        const commentsHTML = Object.entries(commentsObj).map(([commentId, c]) => {
+            const deleteCommentBtn = isAdminMode 
+                ? `<span onclick="deleteComment('${post.firebaseKey}', '${commentId}')" style="cursor:pointer; float:right; font-size:0.8rem; opacity:0.6;">🗑️</span>` 
+                : '';
+
+            return `
             <div class="comment-bubble">
+                ${deleteCommentBtn}
                 <strong style="color: #ccc; font-size: 0.7rem;">${c.avatar} • ${c.time}</strong><br>
                 ${c.text}
             </div>
-        `).join('');
+            `;
+        }).join('');
         // --- COMMENT LOGIC END ---
 
-        // Vibe/Category Styling
         let categoryClass = '';
         let categoryEmoji = '';
         if (post.category === 'crush') { categoryClass = 'cat-crush'; categoryEmoji = '❤️ Crush'; }
@@ -236,7 +230,6 @@ function renderFeed(container, confessions) {
         const catBadge = categoryEmoji ? `<span class="cat-badge">${categoryEmoji}</span>` : '';
         const trendingBadge = (post.likes || 0) >= 10 ? '<span class="trending-badge">🔥 TRENDING</span>' : '';
 
-        // Admin/Owner Tools
         const isMine = post.deviceId === myDeviceId;
         const showDelete = isAdminMode || isMine;
         const deleteBtn = showDelete 
@@ -284,18 +277,15 @@ function renderFeed(container, confessions) {
     }).join('');
 }
 
-// --- COMMENT ACTIONS ---
+// --- ACTIONS ---
 window.toggleComments = function(key) {
     const section = document.getElementById(`comments-${key}`);
-    if (section) {
-        section.style.display = (section.style.display === "block") ? "none" : "block";
-    }
+    if (section) section.style.display = (section.style.display === "block") ? "none" : "block";
 };
 
 window.submitComment = function(postKey) {
     const input = document.getElementById(`input-${postKey}`);
     if (!input) return;
-    
     const text = input.value.trim();
     if (!text) return alert("Empty comment?");
 
@@ -306,12 +296,18 @@ window.submitComment = function(postKey) {
         timestamp: Date.now()
     };
 
-    db.ref('confessions/' + postKey + '/comments').push(newComment, (error) => {
-        if (error) alert("Error: " + error.message);
-    });
+    db.ref('confessions/' + postKey + '/comments').push(newComment);
 };
 
-// --- ACTIONS (LIKE, REPORT, DELETE) ---
+// 🗑️ NEW: DELETE COMMENT FUNCTION
+window.deleteComment = function(postKey, commentKey) {
+    if (confirm("ADMIN: Delete this comment permanently?")) {
+        db.ref('confessions/' + postKey + '/comments/' + commentKey).remove()
+        .then(() => alert("Comment deleted."))
+        .catch(err => alert("Error: " + err.message));
+    }
+};
+
 window.likePost = function(key, currentLikes) {
     let likedPosts = JSON.parse(localStorage.getItem('likedPosts') || '[]');
     if (likedPosts.includes(key)) return;
@@ -366,7 +362,6 @@ window.getToD = function(type) {
 };
 
 const nhie = ["Never eaten someone else's tiffin.", "Never called teacher 'Mummy'.", "Never slept in library.", "Never used fake medical.", "Never crushed on friend's sibling.", "Never made Maggi in kettle.", "Never worn same underwear 2 days.", "Never hooked up in hostel."];
-
 window.nextNeverHaveIEver = function() {
     const d = document.getElementById('nhie-display');
     if (d) d.innerText = nhie[Math.floor(Math.random() * nhie.length)];
