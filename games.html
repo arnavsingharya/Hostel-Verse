@@ -37,19 +37,7 @@
                 <h3 style="color: #2ecc71; text-align: center; margin-bottom: 10px;">🍾 Spin The Bottle</h3>
                 <div class="bottle-container">
                     <div class="bottle-pointer">⬇️</div>
-                    <svg id="bottle" onclick="spinBottle()" viewBox="0 0 100 250" xmlns="http://www.w3.org/2000/svg">
-                        <defs>
-                            <linearGradient id="glassGreen" x1="0%" y1="0%" x2="100%" y2="0%">
-                                <stop offset="0%" style="stop-color:#2ecc71;stop-opacity:1" />
-                                <stop offset="100%" style="stop-color:#27ae60;stop-opacity:1" />
-                            </linearGradient>
-                        </defs>
-                        <path d="M30,70 L70,70 L80,240 L20,240 L30,70" fill="url(#glassGreen)" stroke="#fff" stroke-width="2" opacity="0.8"/>
-                        <rect x="40" y="10" width="20" height="60" fill="url(#glassGreen)" stroke="#fff" stroke-width="2"/>
-                        <rect x="38" y="0" width="24" height="10" fill="#f1c40f"/>
-                        <rect x="35" y="120" width="30" height="60" fill="#fff" opacity="0.9"/>
-                        <text x="50" y="155" font-family="Arial" font-size="10" text-anchor="middle" fill="black" font-weight="bold">BEER</text>
-                    </svg>
+                    <div id="bottle" onclick="spinBottle()">🍾</div>
                 </div>
                 <p style="text-align: center; font-size: 0.8rem; opacity: 0.6; margin-top: 10px;">Tap bottle to spin</p>
             </div>
