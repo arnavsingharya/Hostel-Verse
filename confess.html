@@ -27,25 +27,46 @@
 </nav>
 
     <main class="container">
-        <div class="glass-card confession-box">
-            <h2>Spill the Tea ☕</h2>
-            <p style="margin-bottom: 15px;">Your identity is safe with us.</p>
-            
-            <select id="categorySelect">
-                <option value="general">Select Vibe (Optional)...</option>
-                <option value="crush">❤️ Crush / Love</option>
-                <option value="rant">😡 Rant / Angry</option>
-                <option value="funny">😂 Funny / Meme</option>
-                <option value="scary">👻 Scary / Paranormal</option>
-            </select>
+    <div class="glass-card confession-box">
+        <h2>Spill the Tea ☕</h2>
+        <p style="margin-bottom: 15px; opacity: 0.7;">Your identity is safe with us.</p>
+        
+        <select id="categorySelect">
+            <option value="general">Select Vibe (Optional)...</option>
+            <option value="crush">❤️ Crush / Love</option>
+            <option value="rant">😡 Rant / Angry</option>
+            <option value="funny">😂 Funny / Meme</option>
+            <option value="scary">👻 Scary / Paranormal</option>
+        </select>
 
-            <textarea id="confessionInput" placeholder="Someone in Room F?? stole my Bottle..."></textarea>
-            <button onclick="submitConfession()" class="btn-primary">Post Anonymously</button>
+        <div class="textarea-wrapper">
+            <button onclick="rollDicePrompt()" class="dice-btn" title="Need an idea?">🎲</button>
+            <textarea id="confessionInput" placeholder="Someone in Room F?? stole my Bottle..." maxlength="280"></textarea>
         </div>
-    </main>
+        
+        <span id="charCount" class="char-count">0 / 280</span>
+
+        <div class="tags-container">
+            <span class="tag-chip" onclick="addTag('#Warden')">#Warden</span>
+            <span class="tag-chip" onclick="addTag('#MessFood')">#MessFood</span>
+            <span class="tag-chip" onclick="addTag('#Crush')">#Crush</span>
+            <span class="tag-chip" onclick="addTag('#ExamStress')">#ExamStress</span>
+            <span class="tag-chip" onclick="addTag('#Freshers')">#Freshers</span>
+            <span class="tag-chip" onclick="addTag('#Snitch')">#Snitch</span>
+        </div>
+
+        <button onclick="submitConfession()" class="btn-primary">Post Anonymously</button>
+
+        <div class="privacy-box">
+            <span class="privacy-icon">🛡️</span>
+            <span><strong>Incognito Mode:</strong> Your IP is hidden. No logs. 100% Anonymous.</span>
+        </div>
+    </div>
+</main>
 
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
+
