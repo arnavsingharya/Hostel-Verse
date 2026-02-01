@@ -1,4 +1,4 @@
-/* --- HOSTELVERSE ONLINE (Categories Update) --- */
+/* --- HOSTELVERSE ONLINE (Live Vibe Preview) --- */
 console.log("HostelVerse Script Loaded 🚀");
 
 // --- 1. FIREBASE CONFIGURATION ---
@@ -77,12 +77,41 @@ document.addEventListener('DOMContentLoaded', () => {
     if (document.getElementById('feed-container')) {
         listenForConfessions();
     }
+    
+    // ✨ NEW: ACTIVATE LIVE VIBE PREVIEW
+    setupLiveVibe();
 });
 
-// --- CONFESSION LOGIC (UPDATED WITH CATEGORY) ---
+// ✨ LIVE VIBE PREVIEW LOGIC
+function setupLiveVibe() {
+    const selector = document.getElementById('categorySelect');
+    const input = document.getElementById('confessionInput');
+    
+    if (selector && input) {
+        selector.addEventListener('change', function() {
+            // 1. Remove old glows
+            input.classList.remove('cat-crush', 'cat-rant', 'cat-funny', 'cat-scary');
+            
+            // 2. Add new glow based on selection
+            const val = this.value;
+            if (val !== 'general') {
+                input.classList.add('cat-' + val);
+            }
+
+            // 3. Change Placeholder Text (Smart Assist)
+            if (val === 'crush') input.placeholder = "Who stole your heart? (or your hoodie?)...";
+            else if (val === 'rant') input.placeholder = "Let it all out. No names, just rage...";
+            else if (val === 'funny') input.placeholder = "Make us laugh. What happened in the mess today?";
+            else if (val === 'scary') input.placeholder = "What did you see in the dark corridor?";
+            else input.placeholder = "Someone in Room F?? stole my Bottle...";
+        });
+    }
+}
+
+// --- CONFESSION LOGIC ---
 window.submitConfession = function() {
     const input = document.getElementById('confessionInput');
-    const categorySelect = document.getElementById('categorySelect'); // Get Dropdown
+    const categorySelect = document.getElementById('categorySelect');
     
     if (!input) return;
     const text = input.value.trim();
@@ -90,12 +119,11 @@ window.submitConfession = function() {
 
     if (!db) return alert("Database connecting... try again in a second.");
 
-    // Get selected category or default to 'general'
     const category = categorySelect ? categorySelect.value : 'general';
 
     const newConfession = {
         text: text,
-        category: category, // SAVE CATEGORY
+        category: category,
         avatar: avatars[Math.floor(Math.random() * avatars.length)],
         likes: 0,
         reports: 0,
@@ -110,7 +138,7 @@ window.submitConfession = function() {
     });
 };
 
-// --- FEED LOGIC (UPDATED WITH COLORS) ---
+// --- FEED LOGIC ---
 function listenForConfessions() {
     if (!db) { hideLoader(); return; }
     const container = document.getElementById('feed-container');
@@ -142,12 +170,10 @@ function renderFeed(container, confessions) {
         const isReported = reportedPosts.includes(post.firebaseKey);
         const isMine = post.deviceId === myDeviceId;
         
-        // 🔥 Trending Logic
         const isTrending = (post.likes || 0) >= 10;
         const trendingClass = isTrending ? 'trending-card' : '';
         const trendingBadge = isTrending ? '<span class="trending-badge">🔥 TRENDING</span>' : '';
 
-        // 🎨 Category Logic (New!)
         let categoryClass = '';
         let categoryEmoji = '';
         if (post.category === 'crush') { categoryClass = 'cat-crush'; categoryEmoji = '❤️ Crush'; }
@@ -155,7 +181,6 @@ function renderFeed(container, confessions) {
         else if (post.category === 'funny') { categoryClass = 'cat-funny'; categoryEmoji = '😂 Funny'; }
         else if (post.category === 'scary') { categoryClass = 'cat-scary'; categoryEmoji = '👻 Scary'; }
 
-        // Only show badge if it's not general
         const catBadge = categoryEmoji ? `<span class="cat-badge">${categoryEmoji}</span>` : '';
 
         const showDelete = isAdminMode || isMine;
