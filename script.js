@@ -1,4 +1,4 @@
-/* --- HOSTELVERSE ONLINE (Trending + Secret Admin) --- */
+/* --- HOSTELVERSE ONLINE (Install Button + Your Password) --- */
 console.log("HostelVerse Script Loaded 🚀");
 
 // --- 1. FIREBASE CONFIGURATION ---
@@ -15,8 +15,8 @@ const firebaseConfig = {
 
 // --- 2. INITIALIZE CONNECTION ---
 let db;
-let isAdminMode = false; // Secret Admin Toggle
-let logoClicks = 0;      // Counter for secret trigger
+let isAdminMode = false;
+let logoClicks = 0;
 
 if (typeof firebase !== 'undefined') {
     try {
@@ -30,7 +30,7 @@ if (typeof firebase !== 'undefined') {
     console.error("❌ Firebase SDK not found.");
 }
 
-// --- GLOBAL LOADER & ADMIN TRIGGER ---
+// --- GLOBAL LOADER & TRIGGERS ---
 window.addEventListener('load', () => {
     setTimeout(hideLoader, 3000);
     setupAdminTrigger();
@@ -49,22 +49,22 @@ function setupAdminTrigger() {
     const logo = document.querySelector('.logo');
     if (logo) {
         logo.addEventListener('click', (e) => {
-            // Only trigger on Feed page to avoid navigation issues
             if(window.location.pathname.includes('index.html') || window.location.href.endsWith('/')) {
-                e.preventDefault(); // Stop page reload for a second
+                e.preventDefault();
                 logoClicks++;
                 console.log("Secret Tap:", logoClicks);
 
                 if (logoClicks === 5) {
                     const password = prompt("🕵️‍♂️ Admin Access Required\nEnter Password:");
-                    if (password === "#Y00cr0y0y") { // <--- YOUR PASSWORD
+                    // --- YOUR CUSTOM PASSWORD IS HERE ---
+                    if (password === "(#Y00cr0y0y)") { 
                         isAdminMode = true;
                         alert("🔓 GOD MODE ACTIVATED\nYou can now delete any post and see report counts.");
-                        listenForConfessions(); // Refresh feed to show delete buttons
+                        listenForConfessions();
                     } else {
                         alert("❌ Access Denied");
                     }
-                    logoClicks = 0; // Reset
+                    logoClicks = 0;
                 }
             }
         });
@@ -119,7 +119,6 @@ function listenForConfessions() {
             return;
         }
         
-        // Filter reports (unless Admin)
         const confessions = Object.keys(data)
             .map(key => ({ firebaseKey: key, ...data[key] }))
             .filter(post => isAdminMode || (post.reports || 0) < 5); 
@@ -139,23 +138,16 @@ function renderFeed(container, confessions) {
         const isReported = reportedPosts.includes(post.firebaseKey);
         const isMine = post.deviceId === myDeviceId;
         
-        // 🔥 MISSION 3: TRENDING LOGIC
         const isTrending = (post.likes || 0) >= 10;
         const trendingClass = isTrending ? 'trending-card' : '';
         const trendingBadge = isTrending ? '<span class="trending-badge">🔥 TRENDING</span>' : '';
 
-        // 🕵️‍♂️ MISSION 2: ADMIN CONTROLS
-        // If Admin, show Delete button on EVERYTHING. If not, only show on My Posts.
         const showDelete = isAdminMode || isMine;
-        
         const deleteBtn = showDelete 
             ? `<button onclick="deletePost('${post.firebaseKey}')" style="color:#ff4757; background:rgba(255,71,87,0.1); border:1px solid #ff4757; padding:5px 10px; border-radius:8px; margin-left:10px; cursor:pointer;">🗑️</button>` 
             : '';
 
-        const reportInfo = isAdminMode 
-            ? `<span class="admin-badge">⚠️ ${post.reports || 0} Reports</span>` 
-            : '';
-
+        const reportInfo = isAdminMode ? `<span class="admin-badge">⚠️ ${post.reports || 0} Reports</span>` : '';
         const likeColor = isLiked ? "#bc13fe" : "white";
         const reportColor = isReported ? "#ff4757" : "rgba(255,255,255,0.3)";
         
@@ -175,7 +167,6 @@ function renderFeed(container, confessions) {
                 <button onclick="likePost('${post.firebaseKey}', ${post.likes || 0})" style="background:none; border:none; color:${likeColor}; cursor:pointer; font-weight:bold; margin-right: 15px;">
                     ${isLiked ? '🔥' : '🕯️'} ${post.likes || 0}
                 </button>
-                
                 ${reportBtn}
                 ${deleteBtn}
             </div>
@@ -195,7 +186,6 @@ window.likePost = function(key, currentLikes) {
 window.reportPost = function(key, currentReports) {
     let reportedPosts = JSON.parse(localStorage.getItem('reportedPosts') || '[]');
     if (reportedPosts.includes(key)) { alert("Already reported!"); return; }
-
     if (confirm("Report this post?")) {
         db.ref('confessions/' + key).update({ reports: currentReports + 1 });
         reportedPosts.push(key);
@@ -210,7 +200,6 @@ window.deletePost = function(key) {
     }
 };
 
-// --- HELPER ---
 function getDeviceId() {
     let id = localStorage.getItem('deviceId');
     if (!id) {
@@ -251,11 +240,40 @@ window.calculateFlames = function() {
     const n2 = document.getElementById('name2').value.toLowerCase().replace(/\s/g, '');
     const d = document.getElementById('flames-result');
     if (!n1 || !n2) { d.innerText = "Enter names!"; return; }
-    const o = ["Friends 🤝", "Lovers ❤️", "Affection 🤗", "Marriage 💍", "Enemies ⚔️", "Siblings"];
+    const o = ["Friends 🤝", "Lovers ❤️", "Affection 🤗", "Marriage 💍", "Enemies ⚔️", "Siblings  राखी"];
     const c = n1 + n2;
     let cnt = 0; for(let i=0; i<c.length; i++) cnt += c.charCodeAt(i);
     d.innerText = o[cnt % o.length];
     d.style.opacity = 0; setTimeout(() => { d.style.opacity = 1; }, 100);
 };
 
+// --- APP INSTALL LOGIC (PWA) ---
+let deferredPrompt;
+const installBtn = document.getElementById('installBtn');
 
+window.addEventListener('beforeinstallprompt', (e) => {
+    // Prevent Chrome 67 and earlier from automatically showing the prompt
+    e.preventDefault();
+    // Stash the event so it can be triggered later
+    deferredPrompt = e;
+    // Update UI to notify the user they can add to home screen
+    if (installBtn) {
+        installBtn.style.display = 'block';
+        
+        installBtn.addEventListener('click', (e) => {
+            // Hide the app provided install promotion
+            installBtn.style.display = 'none';
+            // Show the install prompt
+            deferredPrompt.prompt();
+            // Wait for the user to respond to the prompt
+            deferredPrompt.userChoice.then((choiceResult) => {
+                if (choiceResult.outcome === 'accepted') {
+                    console.log('User accepted the A2HS prompt');
+                } else {
+                    console.log('User dismissed the A2HS prompt');
+                }
+                deferredPrompt = null;
+            });
+        });
+    }
+});
