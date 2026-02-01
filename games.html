@@ -4,30 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Game Mode | HostelVerse</title>
+    <link rel="icon" type="image/png" href="Hostel Verse Logo.png">
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
     <meta name="google-site-verification" content="VLN2BcDXbIb84sSULId5dbkHy2Xh9wrA3FVNEHFDYDc" />
 </head>
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <title>HostelVerse</title>
-    
-    <link rel="icon" type="image/png" href="Hostel Verse Logo.png">
-    
-    <link rel="stylesheet" href="style.css">
-    </head>
 <body>
-<nav class="navbar">
-    <div class="logo">Hostel<span>Verse</span></div>
-    <ul class="nav-links">
-        <li><a href="welcome.html">Home</a></li>
-        <li><a href="index.html">Feed</a></li>
-        <li><a href="confess.html">Confess</a></li>
-        <li><a href="games.html" class="active">Games</a></li> <li><a href="about.html">About</a></li>
-    </ul>
-</nav>
+    <nav class="navbar">
+        <div class="logo">Hostel<span>Verse</span></div>
+        <ul class="nav-links">
+            <li><a href="welcome.html">Home</a></li>
+            <li><a href="index.html">Feed</a></li>
+            <li><a href="confess.html">Confess</a></li>
+            <li><a href="games.html" class="active">Games</a></li>
+            <li><a href="about.html">About</a></li>
+        </ul>
+    </nav>
 
     <main class="container">
         <header class="hero">
@@ -60,6 +52,12 @@
             </div>
 
             <div class="glass-card">
+                <h3>👉 Most Likely To...</h3>
+                <p id="mlt-display" style="min-height: 50px; display:flex; align-items:center; justify-content:center;">Who fits the description?</p>
+                <button onclick="nextMostLikely()" class="btn-primary" style="background: var(--secondary); color: #000;">Next Statement ➡️</button>
+            </div>
+
+            <div class="glass-card">
                 <h3>❤️ FLAMES Calculator</h3>
                 <input type="text" id="name1" placeholder="Your Name">
                 <input type="text" id="name2" placeholder="Crush's Name">
@@ -71,5 +69,4 @@
 
     <script src="script.js"></script>
 </body>
-
 </html>
