@@ -251,10 +251,11 @@ window.calculateFlames = function() {
     const n2 = document.getElementById('name2').value.toLowerCase().replace(/\s/g, '');
     const d = document.getElementById('flames-result');
     if (!n1 || !n2) { d.innerText = "Enter names!"; return; }
-    const o = ["Friends 🤝", "Lovers ❤️", "Affection 🤗", "Marriage 💍", "Enemies ⚔️", "Siblings  राखी"];
+    const o = ["Friends 🤝", "Lovers ❤️", "Affection 🤗", "Marriage 💍", "Enemies ⚔️", "Siblings"];
     const c = n1 + n2;
     let cnt = 0; for(let i=0; i<c.length; i++) cnt += c.charCodeAt(i);
     d.innerText = o[cnt % o.length];
     d.style.opacity = 0; setTimeout(() => { d.style.opacity = 1; }, 100);
 };
+
 
