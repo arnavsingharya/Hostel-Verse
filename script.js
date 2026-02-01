@@ -1,4 +1,4 @@
-/* --- HOSTELVERSE ONLINE (Final Compat Fix) --- */
+/* --- HOSTELVERSE ONLINE (Updated) --- */
 console.log("HostelVerse Script Loaded 🚀");
 
 // --- 1. FIREBASE CONFIGURATION ---
@@ -16,17 +16,35 @@ const firebaseConfig = {
 // --- 2. INITIALIZE CONNECTION ---
 let db;
 
-// Check if Firebase loaded from HTML
 if (typeof firebase !== 'undefined') {
     try {
         firebase.initializeApp(firebaseConfig);
-        db = firebase.database(); // <--- THIS IS THE FIX (No 'getDatabase')
+        db = firebase.database();
         console.log("✅ Firebase Connected!");
     } catch (e) {
         console.error("❌ Firebase Error:", e);
     }
 } else {
-    console.error("❌ Firebase SDK not found. Check index.html head tags!");
+    console.error("❌ Firebase SDK not found.");
+}
+
+// --- GLOBAL LOADER LOGIC ---
+// This runs on EVERY page to ensure the loader doesn't get stuck
+window.addEventListener('load', () => {
+    // If we are NOT on the feed page, remove loader immediately (or after short delay)
+    if (!document.getElementById('feed-container')) {
+        hideLoader();
+    }
+    // Safety fallback: Force remove loader after 4 seconds even on Feed page
+    setTimeout(hideLoader, 4000);
+});
+
+function hideLoader() {
+    const loader = document.getElementById('loader');
+    if (loader) {
+        loader.style.opacity = '0';
+        setTimeout(() => { loader.style.display = 'none'; }, 500);
+    }
 }
 
 // --- CONFIGURATION ---
@@ -65,10 +83,15 @@ window.submitConfession = function() {
 
 // --- FEED LOGIC ---
 function listenForConfessions() {
-    if (!db) return;
+    if (!db) {
+        hideLoader(); // Hide loader if DB fails
+        return;
+    }
     const container = document.getElementById('feed-container');
     
     db.ref('confessions').on('value', (snapshot) => {
+        hideLoader(); // <--- SUCCESS! Hide loader when data arrives
+        
         const data = snapshot.val();
         if (!data) {
             container.innerHTML = `<p style="text-align:center; opacity:0.5; margin-top: 2rem;">No tea yet.</p>`;
@@ -162,6 +185,13 @@ window.nextNeverHaveIEver = function() {
     if (d) d.innerText = nhie[Math.floor(Math.random() * nhie.length)];
 };
 
+const mlt = ["Most likely to sleep through a fire alarm.", "Most likely to become a billionaire by accident.", "Most likely to get married first.", "Most likely to argue with the professor.", "Most likely to lose their room key.", "Most likely to become a travel vlogger.", "Most likely to survive a zombie apocalypse.", "Most likely to forget their own birthday.", "Most likely to get arrested for something stupid."];
+
+window.nextMostLikely = function() {
+    const d = document.getElementById('mlt-display');
+    if (d) d.innerText = mlt[Math.floor(Math.random() * mlt.length)];
+};
+
 window.calculateFlames = function() {
     const n1 = document.getElementById('name1').value.toLowerCase().replace(/\s/g, '');
     const n2 = document.getElementById('name2').value.toLowerCase().replace(/\s/g, '');
@@ -172,22 +202,4 @@ window.calculateFlames = function() {
     let cnt = 0; for(let i=0; i<c.length; i++) cnt += c.charCodeAt(i);
     d.innerText = o[cnt % o.length];
     d.style.opacity = 0; setTimeout(() => { d.style.opacity = 1; }, 100);
-};
-
-// --- NEW GAME: MOST LIKELY TO ---
-const mlt = [
-    "Most likely to sleep through a fire alarm.",
-    "Most likely to become a billionaire by accident.",
-    "Most likely to get married first.",
-    "Most likely to argue with the professor.",
-    "Most likely to lose their room key.",
-    "Most likely to become a travel vlogger.",
-    "Most likely to survive a zombie apocalypse.",
-    "Most likely to forget their own birthday.",
-    "Most likely to get arrested for something stupid."
-];
-
-window.nextMostLikely = function() {
-    const d = document.getElementById('mlt-display');
-    if (d) d.innerText = mlt[Math.floor(Math.random() * mlt.length)];
 };
