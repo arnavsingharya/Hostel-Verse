@@ -1,4 +1,4 @@
-/* --- HOSTELVERSE ONLINE (Live Vibe Preview) --- */
+/* --- HOSTELVERSE ONLINE (Final Build) --- */
 console.log("HostelVerse Script Loaded 🚀");
 
 // --- 1. FIREBASE CONFIGURATION ---
@@ -77,9 +77,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (document.getElementById('feed-container')) {
         listenForConfessions();
     }
-    
-    // ✨ NEW: ACTIVATE LIVE VIBE PREVIEW
     setupLiveVibe();
+    setupCharCounter();
 });
 
 // ✨ LIVE VIBE PREVIEW LOGIC
@@ -89,24 +88,45 @@ function setupLiveVibe() {
     
     if (selector && input) {
         selector.addEventListener('change', function() {
-            // 1. Remove old glows
             input.classList.remove('cat-crush', 'cat-rant', 'cat-funny', 'cat-scary');
-            
-            // 2. Add new glow based on selection
             const val = this.value;
             if (val !== 'general') {
                 input.classList.add('cat-' + val);
             }
-
-            // 3. Change Placeholder Text (Smart Assist)
-            if (val === 'crush') input.placeholder = "Who stole your heart? (or your hoodie?)...";
-            else if (val === 'rant') input.placeholder = "Let it all out. No names, just rage...";
-            else if (val === 'funny') input.placeholder = "Make us laugh. What happened in the mess today?";
-            else if (val === 'scary') input.placeholder = "What did you see in the dark corridor?";
-            else input.placeholder = "Someone in Room F?? stole my Bottle...";
         });
     }
 }
+
+// 📝 CHARACTER COUNTER LOGIC
+function setupCharCounter() {
+    const input = document.getElementById('confessionInput');
+    const counter = document.getElementById('charCount');
+    
+    if (input && counter) {
+        input.addEventListener('input', function() {
+            const current = this.value.length;
+            counter.innerText = `${current} / 280`;
+            if (current >= 280) counter.classList.add('limit-reached');
+            else counter.classList.remove('limit-reached');
+        });
+    }
+}
+
+// 🎲 DICE PROMPT LOGIC
+window.rollDicePrompt = function() {
+    const prompts = [
+        "I lied about...", "My roommate is weird because...", "I have a crush on...", 
+        "The food in the mess today was...", "I stole...", "My biggest secret is...", 
+        "I cheated on...", "I snuck out to...", "I regret...", "Room number ___ is definitely..."
+    ];
+    const input = document.getElementById('confessionInput');
+    if (input) {
+        input.value = prompts[Math.floor(Math.random() * prompts.length)];
+        input.focus();
+        const counter = document.getElementById('charCount');
+        if(counter) counter.innerText = `${input.value.length} / 280`;
+    }
+};
 
 // --- CONFESSION LOGIC ---
 window.submitConfession = function() {
@@ -182,7 +202,6 @@ function renderFeed(container, confessions) {
         else if (post.category === 'scary') { categoryClass = 'cat-scary'; categoryEmoji = '👻 Scary'; }
 
         const catBadge = categoryEmoji ? `<span class="cat-badge">${categoryEmoji}</span>` : '';
-
         const showDelete = isAdminMode || isMine;
         const deleteBtn = showDelete 
             ? `<button onclick="deletePost('${post.firebaseKey}')" style="color:#ff4757; background:rgba(255,71,87,0.1); border:1px solid #ff4757; padding:5px 10px; border-radius:8px; margin-left:10px; cursor:pointer;">🗑️</button>` 
