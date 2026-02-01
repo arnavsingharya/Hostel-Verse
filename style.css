@@ -289,3 +289,63 @@ input[type="text"]:focus {
     margin-right: 5px;
 }
 
+/* --- WELCOME PAGE PRO UPGRADES --- */
+
+/* 1. Live User Badge */
+.live-badge {
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid #2ecc71;
+    color: #2ecc71;
+    padding: 8px 16px;
+    border-radius: 50px;
+    font-size: 0.9rem;
+    font-weight: bold;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 2rem;
+    box-shadow: 0 0 10px rgba(46, 204, 113, 0.2);
+    animation: pulse-green 2s infinite;
+}
+
+@keyframes pulse-green {
+    0% { box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.4); }
+    70% { box-shadow: 0 0 0 10px rgba(46, 204, 113, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(46, 204, 113, 0); }
+}
+
+/* 2. Feature Icons Grid */
+.features-row {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 3rem;
+    margin-bottom: 2rem;
+}
+
+.feature-item {
+    background: var(--glass);
+    border: 1px solid var(--border);
+    padding: 15px;
+    border-radius: 15px;
+    text-align: center;
+    width: 100px;
+    backdrop-filter: blur(5px);
+    transition: transform 0.3s;
+}
+
+.feature-item:hover {
+    transform: translateY(-5px);
+    border-color: var(--primary);
+}
+
+.feature-icon {
+    font-size: 1.8rem;
+    margin-bottom: 5px;
+    display: block;
+}
+
+.feature-text {
+    font-size: 0.8rem;
+    color: #ccc;
+}
