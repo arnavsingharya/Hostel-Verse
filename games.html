@@ -3,13 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Game Mode | HostelVerse</title>
+    <title>Arcade | HostelVerse</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#bc13fe">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
     <link rel="icon" type="image/png" href="Hostel Verse Logo.png">
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
-    <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#bc13fe">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 </head>
 <body>
     <nav class="navbar">
@@ -17,7 +19,7 @@
         <ul class="nav-links">
             <li><a href="welcome.html">Home</a></li>
             <li><a href="index.html">Feed</a></li>
-            <li><a href="confess.html">Confess</a></li>
+            <li><a href="confess.html">Confess</a></li> 
             <li><a href="games.html" class="active">Games</a></li>
             <li><a href="about.html">About</a></li>
         </ul>
@@ -25,44 +27,69 @@
 
     <main class="container">
         <header class="hero">
-            <h1>Game <span>Mode</span> 🎲</h1>
-            <p>Kill boredom. Expose secrets. Ruin friendships.</p>
+            <h1>Hostel <span>Arcade</span> 🕹️</h1>
+            <p>Kill time. Expose secrets. Ruin friendships.</p>
         </header>
 
-        <div class="grid">
-            <div class="glass-card">
-                <h3>🍾 Spin the Bottle</h3>
-                <div class="bottle-area">
-                    <div id="bottle" style="font-size: 4rem;">🍾</div>
+        <div class="games-grid">
+            
+            <div class="glass-card" style="border-color: #2ecc71;">
+                <h3 style="color: #2ecc71; text-align: center; margin-bottom: 10px;">🍾 Spin The Bottle</h3>
+                <div class="bottle-container">
+                    <div class="bottle-pointer">⬇️</div>
+                    <svg id="bottle" onclick="spinBottle()" viewBox="0 0 100 250" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="glassGreen" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" style="stop-color:#2ecc71;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#27ae60;stop-opacity:1" />
+                            </linearGradient>
+                        </defs>
+                        <path d="M30,70 L70,70 L80,240 L20,240 L30,70" fill="url(#glassGreen)" stroke="#fff" stroke-width="2" opacity="0.8"/>
+                        <rect x="40" y="10" width="20" height="60" fill="url(#glassGreen)" stroke="#fff" stroke-width="2"/>
+                        <rect x="38" y="0" width="24" height="10" fill="#f1c40f"/>
+                        <rect x="35" y="120" width="30" height="60" fill="#fff" opacity="0.9"/>
+                        <text x="50" y="155" font-family="Arial" font-size="10" text-anchor="middle" fill="black" font-weight="bold">BEER</text>
+                    </svg>
                 </div>
-                <button onclick="spinBottle()" class="btn-secondary" style="width:100%; margin-top:10px;">Spin It!</button>
+                <p style="text-align: center; font-size: 0.8rem; opacity: 0.6; margin-top: 10px;">Tap bottle to spin</p>
             </div>
 
-            <div class="glass-card">
+            <div class="glass-card game-card-tod">
                 <h3>😈 Truth or Dare</h3>
-                <p id="tod-display" style="min-height: 50px; display:flex; align-items:center; justify-content:center;">Ready?</p>
-                <div style="display: flex; gap: 10px; margin-top: 10px;">
-                    <button onclick="getToD('truth')" class="btn-game" style="flex:1;">Truth</button>
-                    <button onclick="getToD('dare')" class="btn-game" style="flex:1;">Dare</button>
+                <p style="font-size: 0.9rem; opacity: 0.7; margin-bottom: 15px;">The classic game of exposing roommates.</p>
+                
+                <div class="result-box" id="tod-display">Tap a button below...</div>
+
+                <div style="display: flex; gap: 10px; margin-top: 15px;">
+                    <button onclick="getToD('truth')" class="btn-game" style="flex:1; border-color: #48dbfb; color: #48dbfb;">Truth 😇</button>
+                    <button onclick="getToD('dare')" class="btn-game" style="flex:1; border-color: #ff4757; color: #ff4757;">Dare 😈</button>
                 </div>
             </div>
 
-            <div class="glass-card">
-                <h3>🍺 Never Have I Ever</h3>
-                <p id="nhie-display" style="min-height: 50px; display:flex; align-items:center; justify-content:center;">Swipe next...</p>
-                <button onclick="nextNeverHaveIEver()" class="btn-primary" style="background: var(--accent); color: #000;">Next Statement ➡️</button>
+            <div class="glass-card game-card-flames">
+                <h3>❤️ FLAMES Check</h3>
+                <p style="font-size: 0.9rem; opacity: 0.7; margin-bottom: 15px;">Will you marry your crush or just be friends?</p>
+                
+                <input type="text" id="name1" placeholder="Your Name" style="margin-bottom: 5px;">
+                <input type="text" id="name2" placeholder="Crush's Name">
+                
+                <div class="result-box" id="flames-result" style="border-color: #ff4757; color: #ff4757;">?</div>
+
+                <button onclick="calculateFlames()" class="btn-primary" style="background: #ff4757; margin-top: 15px;">Check Destiny 💘</button>
             </div>
 
-            <div class="glass-card">
-                <h3>❤️ FLAMES Calculator</h3>
-                <input type="text" id="name1" placeholder="Your Name">
-                <input type="text" id="name2" placeholder="Crush's Name">
-                <button onclick="calculateFlames()" class="btn-primary">Check Destiny</button>
-                <div id="flames-result" class="result-display"></div>
+            <div class="glass-card game-card-nhie">
+                <h3>🍺 Never Have I Ever...</h3>
+                <p style="font-size: 0.9rem; opacity: 0.7; margin-bottom: 15px;">If you've done it, take a sip (of water).</p>
+                
+                <div class="result-box" id="nhie-display" style="border-color: #a55eea;">Press Next for a question</div>
+
+                <button onclick="nextNeverHaveIEver()" class="btn-game" style="width: 100%; margin-top: 15px; border-color: #a55eea; color: #a55eea;">Next Question ➡️</button>
             </div>
+
         </div>
     </main>
+
     <script src="script.js"></script>
 </body>
 </html>
-
