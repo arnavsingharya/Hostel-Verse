@@ -435,30 +435,29 @@ button {
     }
 }
 
-/* 1. SPIN THE BOTTLE STYLES (Resized for Mobile) */
+/* 1. SPIN THE BOTTLE STYLES (Emoji Version) */
 .bottle-container {
-    height: 180px; /* Reduced from 250px */
+    height: 200px;
     display: flex;
     justify-content: center;
     align-items: center;
     position: relative;
-    background: radial-gradient(circle, rgba(46, 204, 113, 0.2) 0%, transparent 70%);
+    /* Remove the background gradient if you want it clean */
+    background: radial-gradient(circle, rgba(46, 204, 113, 0.1) 0%, transparent 60%);
 }
 
-/* The Green Glass Bottle (SVG Styling) */
 #bottle {
-    width: 65px; /* Reduced from 100px - Fits perfectly now */
-    height: auto;
-    filter: drop-shadow(0 0 10px #2ecc71);
+    font-size: 5rem; /* Big Emoji Size */
     transition: transform 3s cubic-bezier(0.1, 0, 0.1, 1);
     cursor: pointer;
+    user-select: none; /* Prevents highlighting when clicking */
+    filter: drop-shadow(0 0 15px rgba(46, 204, 113, 0.4)); /* Green Glow */
 }
 
-/* The Arrow/Pointer */
 .bottle-pointer {
     position: absolute;
-    top: 5px;
-    font-size: 1.5rem; /* Slightly smaller pointer */
+    top: 20px;
+    font-size: 2rem;
     color: #ff4757;
     z-index: 10;
     animation: bounce 1s infinite;
@@ -466,7 +465,8 @@ button {
 
 @keyframes bounce {
     0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-5px); }
+    50% { transform: translateY(-10px); }
+}
 }
 /* 2. GAME CARDS (Specific Colors) */
 .game-card-tod {
@@ -498,4 +498,5 @@ button {
     font-size: 1.1rem;
     box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
 }
+
 
