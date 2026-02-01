@@ -4,29 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Spill the Tea | HostelVerse</title>
-    <link rel="stylesheet" href="style.css">
+    
     <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#bc13fe">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#bc13fe">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <link rel="icon" type="image/png" href="Hostel Verse Logo.png">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
     <meta name="google-site-verification" content="VLN2BcDXbIb84sSULId5dbkHy2Xh9wrA3FVNEHFDYDc" />
 </head>
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <title>HostelVerse</title>
-    
-    <link rel="icon" type="image/png" href="Hostel Verse Logo.png">
-    
-    <link rel="stylesheet" href="style.css">
-    </head>
 <body>
     <nav class="navbar">
     <div class="logo">Hostel<span>Verse</span></div>
     <ul class="nav-links">
         <li><a href="welcome.html">Home</a></li>
         <li><a href="index.html">Feed</a></li>
-        <li><a href="confess.html" class="active">Confess</a></li> <li><a href="games.html">Games</a></li>
+        <li><a href="confess.html" class="active">Confess</a></li> 
+        <li><a href="games.html">Games</a></li>
         <li><a href="about.html">About</a></li>
     </ul>
 </nav>
@@ -34,17 +29,23 @@
     <main class="container">
         <div class="glass-card confession-box">
             <h2>Spill the Tea ☕</h2>
-            <p>Your identity is safe with us.</p>
+            <p style="margin-bottom: 15px;">Your identity is safe with us.</p>
+            
+            <select id="categorySelect">
+                <option value="general">Select Vibe (Optional)...</option>
+                <option value="crush">❤️ Crush / Love</option>
+                <option value="rant">😡 Rant / Angry</option>
+                <option value="funny">😂 Funny / Meme</option>
+                <option value="scary">👻 Scary / Paranormal</option>
+            </select>
+
             <textarea id="confessionInput" placeholder="Someone in Room F?? stole my Bottle..."></textarea>
             <button onclick="submitConfession()" class="btn-primary">Post Anonymously</button>
         </div>
     </main>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     <script src="script.js"></script>
 </body>
-
 </html>
-
-
-
