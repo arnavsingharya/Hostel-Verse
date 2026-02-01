@@ -1,4 +1,4 @@
-/* --- HOSTELVERSE ONLINE (Fixed Admin & Deletes) --- */
+/* --- HOSTELVERSE ONLINE (Self-Delete + Admin Delete) --- */
 console.log("HostelVerse Script Loaded 🚀");
 
 // --- 1. FIREBASE CONFIGURATION ---
@@ -44,7 +44,7 @@ function hideLoader() {
     }
 }
 
-// 🕵️‍♂️ SECRET ADMIN LOGIC (Tap Logo 5 Times)
+// 🕵️‍♂️ SECRET ADMIN LOGIC
 function setupAdminTrigger() {
     const logo = document.querySelector('.logo');
     if (logo) {
@@ -56,14 +56,10 @@ function setupAdminTrigger() {
                 if (logoClicks === 5) {
                     let password = prompt("🕵️‍♂️ Admin Access Required\nEnter Password:");
                     if (password !== null) {
-                        password = password.trim(); // Removes extra spaces
-                        
-                        // FIX: Password is now exactly #Y00cr0y0y
+                        password = password.trim(); 
                         if (password === "#Y00cr0y0y") { 
                             isAdminMode = true;
-                            alert("🔓 GOD MODE ACTIVATED\nYou can now delete Posts and Comments.");
-                            
-                            // FORCE REFRESH THE FEED TO SHOW DELETE BUTTONS
+                            alert("🔓 GOD MODE ACTIVATED");
                             const container = document.getElementById('feed-container');
                             if(container) container.innerHTML = '<p style="text-align:center;">Refreshing Admin Tools...</p>';
                             listenForConfessions(); 
@@ -174,14 +170,12 @@ window.submitConfession = function() {
     });
 };
 
-// --- FEED LOGIC (LISTENER) ---
+// --- FEED LOGIC ---
 function listenForConfessions() {
     if (!db) { hideLoader(); return; }
     const container = document.getElementById('feed-container');
     
-    // Detach old listener to prevent duplicates if God Mode is toggled
-    db.ref('confessions').off();
-
+    db.ref('confessions').off(); // Remove old listeners
     db.ref('confessions').on('value', (snapshot) => {
         hideLoader();
         const data = snapshot.val();
@@ -199,7 +193,7 @@ function listenForConfessions() {
     });
 }
 
-// --- RENDER FEED (FIXED COMMENT DELETE) ---
+// --- RENDER FEED (SMART DELETE LOGIC) ---
 function renderFeed(container, confessions) {
     const myDeviceId = getDeviceId();
     const likedPosts = JSON.parse(localStorage.getItem('likedPosts') || '[]');
@@ -208,16 +202,17 @@ function renderFeed(container, confessions) {
         const isLiked = likedPosts.includes(post.firebaseKey);
         const likeColor = isLiked ? "#bc13fe" : "white";
         
-        // --- FIXED COMMENT LOGIC START ---
+        // --- SMART COMMENT LOGIC ---
         const commentsObj = post.comments || {};
         const commentCount = Object.keys(commentsObj).length;
         
-        // We use Object.entries to get the ID (key) and the Data (value)
         const commentsHTML = Object.entries(commentsObj).map(([commentId, c]) => {
+            // Check: Is this MY comment OR am I Admin?
+            const isMyComment = c.deviceId === myDeviceId;
+            const canDelete = isAdminMode || isMyComment;
             
-            // Show Trash Can ONLY if Admin
-            const deleteCommentBtn = isAdminMode 
-                ? `<span onclick="deleteComment('${post.firebaseKey}', '${commentId}')" style="cursor:pointer; float:right; font-size:1rem; opacity:0.8; color:#ff4757;">🗑️</span>` 
+            const deleteCommentBtn = canDelete 
+                ? `<span onclick="deleteComment('${post.firebaseKey}', '${commentId}')" style="cursor:pointer; float:right; font-size:1rem; opacity:0.8; color:#ff4757;" title="Delete Comment">🗑️</span>` 
                 : '';
 
             return `
@@ -228,7 +223,7 @@ function renderFeed(container, confessions) {
             </div>
             `;
         }).join('');
-        // --- FIXED COMMENT LOGIC END ---
+        // ---------------------------
 
         let categoryClass = '';
         let categoryEmoji = '';
@@ -293,6 +288,7 @@ window.toggleComments = function(key) {
     if (section) section.style.display = (section.style.display === "block") ? "none" : "block";
 };
 
+// 💬 NOW SAVES DEVICE ID SO YOU CAN DELETE YOUR OWN COMMENTS
 window.submitComment = function(postKey) {
     const input = document.getElementById(`input-${postKey}`);
     if (!input) return;
@@ -303,17 +299,17 @@ window.submitComment = function(postKey) {
         text: text,
         avatar: avatars[Math.floor(Math.random() * avatars.length)],
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        timestamp: Date.now()
+        timestamp: Date.now(),
+        deviceId: getDeviceId() // Added: To allow self-delete
     };
 
     db.ref('confessions/' + postKey + '/comments').push(newComment);
 };
 
-// 🗑️ FIXED: DELETE COMMENT FUNCTION
 window.deleteComment = function(postKey, commentKey) {
-    if (confirm("ADMIN: Delete this comment permanently?")) {
+    if (confirm("Delete this comment permanently?")) {
         db.ref('confessions/' + postKey + '/comments/' + commentKey).remove()
-        .then(() => alert("Comment deleted."))
+        .then(() => {}) // UI updates automatically via listener
         .catch(err => alert("Error: " + err.message));
     }
 };
