@@ -3,114 +3,99 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HostelVerse | About</title>
-    
-    <link rel="icon" type="image/png" href="Hostel Verse Logo.png">
+    <title>About | HostelVerse</title>
     <link rel="stylesheet" href="style.css">
-    
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#bc13fe">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    
-    <meta name="google-site-verification" content="VLN2BcDXbIb84sSULId5dbkHy2Xh9wrA3FVNEHFDYDc" />
-
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        /* GRID SYSTEM: Makes all boxes look uniform */
-        .about-grid {
-            display: grid;
-            grid-template-columns: 1fr; /* 1 column on mobile */
-            gap: 20px;
+        /* Extra Styles specific to About Page */
+        .about-hero {
+            text-align: center;
+            margin-bottom: 30px;
         }
-        
-        /* On Laptop/PC: Split into 2 equal columns */
-        @media (min-width: 768px) {
-            .about-grid {
-                grid-template-columns: 1fr 1fr; 
-            }
+        .about-hero h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(45deg, #ff00cc, #3333ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
         }
-        
-        .social-icon {
+        .feature-list {
+            text-align: left;
+            margin-top: 15px;
+        }
+        .feature-list li {
+            margin-bottom: 10px;
+            list-style: none;
+        }
+        .insta-btn {
+            display: inline-block;
+            background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
             color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            margin-top: 10px;
+            box-shadow: 0 4px 15px rgba(220, 39, 67, 0.4);
             transition: 0.3s;
-            opacity: 0.7;
         }
-        .social-icon:hover {
-            opacity: 1;
-            color: var(--primary);
-            transform: scale(1.1);
+        .insta-btn:hover {
+            transform: scale(1.05);
+        }
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            text-decoration: none;
+            color: white;
+            font-size: 1.5rem;
+            opacity: 0.7;
         }
     </style>
 </head>
 <body>
-    <nav class="navbar">
-        <div class="logo">Hostel<span>Verse</span></div>
-        <ul class="nav-links">
-            <li><a href="welcome.html">Home</a></li>
-            <li><a href="index.html">Feed</a></li>
-            <li><a href="confess.html">Confess</a></li>
-            <li><a href="games.html">Games</a></li>
-            <li><a href="about.html" class="active">About</a></li>
-        </ul>
-    </nav>
 
-    <main class="container animate-slide-in">
-        <header class="hero">
-            <h1>Behind the <span>Chaos</span> 🛸</h1>
-            <p>The rules of the underground.</p>
-        </header>
+    <a href="index.html" class="back-btn">← Back</a>
 
-        <div class="about-grid">
-            
-            <div class="glass-card">
-                <h3>💜 What is HostelVerse?</h3>
-                <p style="margin-top: 15px; line-height: 1.6; color: #ddd;">
-                    The ultimate social hub for students. Rant anonymously, play games, or check the campus vibe. We got you.
-                </p>
-                <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 15px 0;">
-                <h4>🔒 Privacy Policy</h4>
-                <p style="font-size: 0.9rem; color: rgba(255, 255, 255, 0.6); margin-top: 5px;">
-                    We don't store personal data. Everything is anonymous. IP addresses are not logged.
-                </p>
-            </div>
-
-            <div class="glass-card">
-                <h3>📜 The Code</h3>
-                <ul style="list-style: none; margin-top: 15px; line-height: 2;">
-                    <li>✅ <strong>Anonymous:</strong> We don't track who you are.</li>
-                    <li>✅ <strong>No Bullying:</strong> Roasting is fine, harassment is not.</li>
-                    <li>✅ <strong>No Names:</strong> Use room numbers or nicknames.</li>
-                    <li>🚩 <strong>Report:</strong> See something bad? Flag it.</li>
-                </ul>
-            </div>
-
-            <div class="glass-card" style="text-align: center;">
-                <h3>👨‍💻 Developer</h3>
-                <p style="margin-top: 5px; color: #ccc;">Built with ☕ by <strong>Arnav Singh Arya</strong></p>
-                
-                <div style="margin-top: 20px; display: flex; justify-content: center; gap: 30px;">
-                    <a href="https://www.instagram.com/hostelverseofficial/" target="_blank">
-                        <button class="btn-game" style="background: var(--primary); border: none;">Contact Dev</button>
-                    </a>
-                </div>
-                
-                <div style="margin-top: 20px; display: flex; justify-content: center; gap: 20px;">
-                     <a href="https://www.facebook.com/arnav.arya.35977" target="_blank" class="social-icon"><i class="fab fa-facebook fa-lg"></i></a>
-                    <a href="https://www.instagram.com/arnavsingharya/" target="_blank" class="social-icon"><i class="fab fa-instagram fa-lg"></i></a>
-                </div>
-            </div>
-
-            <div class="glass-card" style="border-color: #ff4757; display: flex; flex-direction: column; justify-content: center;">
-                <h4 style="color: #ff4757; margin-bottom: 10px;">⚠️ Disclaimer</h4>
-                <p style="font-size: 0.85rem; opacity: 0.8; line-height: 1.6;">
-                    This platform is for entertainment only. The developer is not responsible for content posted by anonymous users. Don't do anything illegal.
-                </p>
-                <p style="margin-top: auto; padding-top: 10px; font-size: 0.8rem; opacity: 0.5;">&copy; 2026 HostelVerse Project</p>
-            </div>
-
+    <main class="container" style="padding-top: 60px;">
+        
+        <div class="about-hero">
+            <div class="logo">HostelVerse</div>
+            <h1>The Chaos Controller</h1>
+            <p style="opacity: 0.8;">The only social network that knows your secrets but won't snitch.</p>
         </div>
+
+        <div class="glass-card">
+            <h2>🚀 The Mission</h2>
+            <p>Hostel life is crazy. The mess food is questionable. The wardens are strict. <br><br>
+            We built <strong>HostelVerse</strong> to give every student a voice (without the fear of getting called to the office). Roast, confess, and vibe—anonymously.</p>
+        </div>
+
+        <div class="glass-card" style="border-left: 3px solid #2ecc71;">
+            <h2>🛡️ Is it Safe?</h2>
+            <p><strong>100% Yes.</strong></p>
+            <ul class="feature-list">
+                <li>✅ <strong>No Login Required:</strong> We don't want your email.</li>
+                <li>✅ <strong>No Names:</strong> You are just a random Avatar.</li>
+                <li>✅ <strong>No Tracking:</strong> What happens in HostelVerse, stays in HostelVerse.</li>
+            </ul>
+        </div>
+
+        <div class="glass-card" style="text-align: center;">
+            <h2>🔥 Stay Updated</h2>
+            <p>Follow us for the best confessions and updates.</p>
+            <br>
+            <a href="https://instagram.com/hostelverseofficial" target="_blank" class="insta-btn">
+                Follow @hostelverseofficial
+            </a>
+        </div>
+
+        <div style="text-align: center; margin-top: 30px; opacity: 0.5; font-size: 0.8rem;">
+            <p>Designed & Developed with ☕ & Maggi</p>
+            <p>Version 1.0.0 (BETA)</p>
+        </div>
+
     </main>
+
 </body>
 </html>
-
