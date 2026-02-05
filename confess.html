@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spill the Tea | HostelVerse</title>
+    <title>Create Post | HostelVerse</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#bc13fe">
@@ -26,11 +26,15 @@
 
     <main class="container">
     <div class="glass-card confession-box">
-        <h2>Create Post ✍️</h2>
         
-        <div style="display: flex; background: rgba(0,0,0,0.3); border-radius: 10px; margin-bottom: 20px; padding: 5px;">
-            <button id="btn-text" onclick="switchMode('text')" style="flex: 1; background: var(--primary); color: white; padding: 10px; border-radius: 8px;">📝 Text</button>
-            <button id="btn-poll" onclick="switchMode('poll')" style="flex: 1; background: transparent; color: #aaa; padding: 10px; border-radius: 8px;">📊 Poll</button>
+        <div style="text-align: center; margin-bottom: 25px;">
+            <h2 style="font-size: 2rem; margin-bottom: 5px; letter-spacing: -1px;">Create Post ✍️</h2>
+            <p style="opacity: 0.6; font-size: 0.9rem;">What's happening in the hostel?</p>
+        </div>
+        
+        <div style="display: flex; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; margin-bottom: 25px; padding: 5px;">
+            <button id="btn-text" onclick="switchMode('text')" style="flex: 1; background: var(--primary); color: white; padding: 12px; border-radius: 8px; font-weight: bold; transition: 0.3s;">📝 Text</button>
+            <button id="btn-poll" onclick="switchMode('poll')" style="flex: 1; background: transparent; color: #aaa; padding: 12px; border-radius: 8px; font-weight: bold; transition: 0.3s;">📊 Poll</button>
         </div>
 
         <select id="categorySelect">
@@ -57,23 +61,24 @@
         </div>
 
         <div id="poll-mode" style="display: none;">
-            <input type="text" id="pollQuestion" placeholder="Ask a question (e.g. Mass Bunk?)" maxlength="80">
+            <input type="text" id="pollQuestion" placeholder="Ask a question (e.g. Mass Bunk?)" maxlength="80" style="font-weight: bold; margin-bottom: 15px;">
             
-            <div id="pollOptionsContainer" style="display: flex; flex-direction: column; gap: 10px; margin-top: 10px;">
+            <label style="font-size: 0.8rem; opacity: 0.7; margin-left: 5px;">Options:</label>
+            <div id="pollOptionsContainer" style="display: flex; flex-direction: column; gap: 10px; margin-top: 5px;">
                 <input type="text" class="poll-input" placeholder="Option 1" style="border-color: #48dbfb;">
                 <input type="text" class="poll-input" placeholder="Option 2" style="border-color: #ff4757;">
             </div>
 
-            <button onclick="addPollInput()" id="addOptBtn" class="btn-game" style="margin-top: 10px; padding: 8px 15px; font-size: 0.8rem; border-color: var(--secondary); color: var(--secondary);">
-                + Add Option
+            <button onclick="addPollInput()" id="addOptBtn" class="btn-game" style="margin-top: 15px; width: 100%; padding: 10px; font-size: 0.9rem; border-color: var(--secondary); color: var(--secondary); background: rgba(46, 204, 113, 0.1);">
+                + Add Another Option
             </button>
 
-            <p style="font-size: 0.8rem; opacity: 0.5; margin-top: 10px; text-align: center;">Polls are anonymous & last 24 hours.</p>
+            <p style="font-size: 0.8rem; opacity: 0.5; margin-top: 15px; text-align: center;">Polls are anonymous & last 24 hours.</p>
         </div>
 
-        <button onclick="submitPost()" class="btn-primary" style="margin-top: 20px;">Post It 🚀</button>
+        <button onclick="submitPost()" class="btn-primary" style="margin-top: 25px; font-size: 1.1rem; letter-spacing: 1px;">POST IT 🚀</button>
 
-        <div class="privacy-box">
+        <div class="privacy-box" style="margin-top: 25px;">
             <span class="privacy-icon">🛡️</span>
             <span><strong>Incognito Mode:</strong> Your IP is hidden. 100% Anonymous.</span>
         </div>
