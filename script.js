@@ -125,17 +125,30 @@ function setupCharCounter() {
     }
 }
 
-// 🔍 SEARCH BAR LOGIC
+// 🔍 SEARCH BAR LOGIC (CRASH-PROOF VERSION)
 window.filterFeed = function() {
-    const query = document.getElementById('searchInput').value.toLowerCase();
+    const input = document.getElementById('searchInput');
     const container = document.getElementById('feed-container');
     
-    // Filter the stored array
-    const filtered = allConfessions.filter(post => 
-        post.text.toLowerCase().includes(query) || 
-        post.category.toLowerCase().includes(query)
-    );
+    if (!input || !container) return;
     
+    const query = input.value.toLowerCase().trim();
+    
+    // Safety Check: If no posts loaded yet, stop.
+    if (!allConfessions || allConfessions.length === 0) {
+        console.log("Waiting for data...");
+        return;
+    }
+
+    const filtered = allConfessions.filter(post => {
+        // SAFE GUARDS: We use "|| ''" to treat empty data as blank text instead of crashing
+        const text = (post.text || "").toLowerCase();
+        const category = (post.category || "").toLowerCase(); 
+        
+        return text.includes(query) || category.includes(query);
+    });
+    
+    console.log(`Searching for: "${query}" | Found: ${filtered.length}`); // Debugging
     renderFeed(container, filtered);
 };
 
@@ -305,3 +318,4 @@ window.calculateFlames = function() { document.getElementById('flames-result').i
 
 // PWA
 window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); const btn=document.getElementById('installBtn'); if(btn){ btn.style.display='block'; btn.onclick=()=>{e.prompt();}; }});
+
