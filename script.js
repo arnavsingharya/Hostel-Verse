@@ -1,4 +1,4 @@
-/* --- HOSTELVERSE ONLINE (Self-Delete + Admin Delete) --- */
+/* --- HOSTELVERSE V6.0 (Search + Fixed Identity + Admin) --- */
 console.log("HostelVerse Script Loaded 🚀");
 
 // --- 1. FIREBASE CONFIGURATION ---
@@ -17,6 +17,7 @@ const firebaseConfig = {
 let db;
 let isAdminMode = false;
 let logoClicks = 0;
+let allConfessions = []; // STORE POSTS FOR SEARCH
 
 if (typeof firebase !== 'undefined') {
     try {
@@ -34,6 +35,7 @@ if (typeof firebase !== 'undefined') {
 window.addEventListener('load', () => {
     setTimeout(hideLoader, 3000);
     setupAdminTrigger();
+    initializeIdentity(); // ASSIGN PERMANENT AVATAR
 });
 
 function hideLoader() {
@@ -42,6 +44,23 @@ function hideLoader() {
         loader.style.opacity = '0';
         setTimeout(() => { loader.style.display = 'none'; }, 500);
     }
+}
+
+// 🦊 FIXED IDENTITY LOGIC
+const avatars = ['🦊', '🐱', '🦄', '👻', '🤖', '👾', '🐸', '🦁', '🐵', '🐼', '🐯', '🐙', '👽', '💀', '🦖'];
+
+function initializeIdentity() {
+    let myAv = localStorage.getItem('userAvatar');
+    if (!myAv) {
+        // If first time, assign random and SAVE it
+        myAv = avatars[Math.floor(Math.random() * avatars.length)];
+        localStorage.setItem('userAvatar', myAv);
+        console.log("Identity Assigned: " + myAv);
+    }
+}
+
+function getMyAvatar() {
+    return localStorage.getItem('userAvatar') || '👻';
 }
 
 // 🕵️‍♂️ SECRET ADMIN LOGIC
@@ -55,17 +74,12 @@ function setupAdminTrigger() {
                 
                 if (logoClicks === 5) {
                     let password = prompt("🕵️‍♂️ Admin Access Required\nEnter Password:");
-                    if (password !== null) {
-                        password = password.trim(); 
-                        if (password === "#Y00cr0y0y") { 
-                            isAdminMode = true;
-                            alert("🔓 GOD MODE ACTIVATED");
-                            const container = document.getElementById('feed-container');
-                            if(container) container.innerHTML = '<p style="text-align:center;">Refreshing Admin Tools...</p>';
-                            listenForConfessions(); 
-                        } else {
-                            alert("❌ Access Denied");
-                        }
+                    if (password !== null && password.trim() === "#Y00cr0y0y") { 
+                        isAdminMode = true;
+                        alert("🔓 GOD MODE ACTIVATED");
+                        listenForConfessions(); // Reload with hidden posts
+                    } else {
+                        alert("❌ Access Denied");
                     }
                     logoClicks = 0;
                 }
@@ -73,9 +87,6 @@ function setupAdminTrigger() {
         });
     }
 }
-
-// --- CONFIGURATION ---
-const avatars = ['🦊', '🐱', '🦄', '👻', '🤖', '👾', '🐸', '🦁', '🐵', '🐼', '🐯', '🐙'];
 
 // --- INITIALIZATION ---
 document.addEventListener('DOMContentLoaded', () => {
@@ -107,56 +118,42 @@ function setupCharCounter() {
     const counter = document.getElementById('charCount');
     if (input && counter) {
         input.addEventListener('input', function() {
-            const current = this.value.length;
-            counter.innerText = `${current} / 280`;
-            if (current >= 280) counter.classList.add('limit-reached');
+            counter.innerText = `${this.value.length} / 280`;
+            if (this.value.length >= 280) counter.classList.add('limit-reached');
             else counter.classList.remove('limit-reached');
         });
     }
 }
 
-// 🎲 DICE PROMPT LOGIC
-window.rollDicePrompt = function() {
-    const prompts = [
-        "I lied about...", "My roommate is weird because...", "I have a crush on...", 
-        "The food in the mess today was...", "I stole...", "My biggest secret is...", 
-        "I cheated on...", "I snuck out to...", "I regret...", "Room number ___ is definitely..."
-    ];
-    const input = document.getElementById('confessionInput');
-    if (input) {
-        input.value = prompts[Math.floor(Math.random() * prompts.length)];
-        input.focus();
-        const counter = document.getElementById('charCount');
-        if(counter) counter.innerText = `${input.value.length} / 280`;
-    }
+// 🔍 SEARCH BAR LOGIC
+window.filterFeed = function() {
+    const query = document.getElementById('searchInput').value.toLowerCase();
+    const container = document.getElementById('feed-container');
+    
+    // Filter the stored array
+    const filtered = allConfessions.filter(post => 
+        post.text.toLowerCase().includes(query) || 
+        post.category.toLowerCase().includes(query)
+    );
+    
+    renderFeed(container, filtered);
 };
 
-// #️⃣ ADD HASHTAG LOGIC
-window.addTag = function(tagName) {
-    const input = document.getElementById('confessionInput');
-    if (input) {
-        input.value += (input.value.length > 0 ? " " : "") + tagName;
-        input.focus();
-        const counter = document.getElementById('charCount');
-        if(counter) counter.innerText = `${input.value.length} / 280`;
-    }
-};
-
-// --- CONFESSION SUBMISSION ---
+// --- CONFESSION SUBMISSION (WITH FIXED AVATAR) ---
 window.submitConfession = function() {
     const input = document.getElementById('confessionInput');
     const categorySelect = document.getElementById('categorySelect');
     if (!input) return;
     const text = input.value.trim();
     if (!text) return alert("Bhai kuch toh likh!");
-    if (!db) return alert("Database connecting... try again in a second.");
+    if (!db) return alert("Database connecting...");
 
     const category = categorySelect ? categorySelect.value : 'general';
 
     const newConfession = {
         text: text,
         category: category,
-        avatar: avatars[Math.floor(Math.random() * avatars.length)],
+        avatar: getMyAvatar(), // USES FIXED AVATAR
         likes: 0,
         reports: 0,
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
@@ -175,55 +172,52 @@ function listenForConfessions() {
     if (!db) { hideLoader(); return; }
     const container = document.getElementById('feed-container');
     
-    db.ref('confessions').off(); // Remove old listeners
+    db.ref('confessions').off();
     db.ref('confessions').on('value', (snapshot) => {
         hideLoader();
         const data = snapshot.val();
         if (!data) {
-            container.innerHTML = `<p style="text-align:center; opacity:0.5; margin-top: 2rem;">No tea yet.</p>`;
+            container.innerHTML = `<p style="text-align:center; opacity:0.5;">No tea yet.</p>`;
             return;
         }
         
-        const confessions = Object.keys(data)
+        // Save to global array for searching
+        allConfessions = Object.keys(data)
             .map(key => ({ firebaseKey: key, ...data[key] }))
             .filter(post => isAdminMode || (post.reports || 0) < 5); 
 
-        confessions.sort((a, b) => b.timestamp - a.timestamp);
-        renderFeed(container, confessions);
+        allConfessions.sort((a, b) => b.timestamp - a.timestamp);
+        
+        // Initial Render
+        renderFeed(container, allConfessions);
     });
 }
 
-// --- RENDER FEED (SMART DELETE LOGIC) ---
-function renderFeed(container, confessions) {
+// --- RENDER FEED ---
+function renderFeed(container, posts) {
+    if(posts.length === 0) {
+        container.innerHTML = `<p style="text-align:center; opacity:0.5; margin-top:20px;">No results found.</p>`;
+        return;
+    }
+
     const myDeviceId = getDeviceId();
     const likedPosts = JSON.parse(localStorage.getItem('likedPosts') || '[]');
 
-    container.innerHTML = confessions.map(post => {
+    container.innerHTML = posts.map(post => {
         const isLiked = likedPosts.includes(post.firebaseKey);
         const likeColor = isLiked ? "#bc13fe" : "white";
         
-        // --- SMART COMMENT LOGIC ---
+        // Comment Logic
         const commentsObj = post.comments || {};
         const commentCount = Object.keys(commentsObj).length;
-        
         const commentsHTML = Object.entries(commentsObj).map(([commentId, c]) => {
-            // Check: Is this MY comment OR am I Admin?
             const isMyComment = c.deviceId === myDeviceId;
             const canDelete = isAdminMode || isMyComment;
-            
             const deleteCommentBtn = canDelete 
-                ? `<span onclick="deleteComment('${post.firebaseKey}', '${commentId}')" style="cursor:pointer; float:right; font-size:1rem; opacity:0.8; color:#ff4757;" title="Delete Comment">🗑️</span>` 
+                ? `<span onclick="deleteComment('${post.firebaseKey}', '${commentId}')" style="cursor:pointer; float:right; color:#ff4757;">🗑️</span>` 
                 : '';
-
-            return `
-            <div class="comment-bubble">
-                ${deleteCommentBtn}
-                <strong style="color: #ccc; font-size: 0.7rem;">${c.avatar} • ${c.time}</strong><br>
-                ${c.text}
-            </div>
-            `;
+            return `<div class="comment-bubble">${deleteCommentBtn}<strong style="color:#ccc; font-size:0.7rem;">${c.avatar} • ${c.time}</strong><br>${c.text}</div>`;
         }).join('');
-        // ---------------------------
 
         let categoryClass = '';
         let categoryEmoji = '';
@@ -234,172 +228,80 @@ function renderFeed(container, confessions) {
         
         const catBadge = categoryEmoji ? `<span class="cat-badge">${categoryEmoji}</span>` : '';
         const trendingBadge = (post.likes || 0) >= 10 ? '<span class="trending-badge">🔥 TRENDING</span>' : '';
-
+        
         const isMine = post.deviceId === myDeviceId;
         const showDelete = isAdminMode || isMine;
-        const deleteBtn = showDelete 
-            ? `<button onclick="deletePost('${post.firebaseKey}')" style="color:#ff4757; background:rgba(255,71,87,0.1); border:1px solid #ff4757; padding:5px 10px; border-radius:8px; margin-left:10px; cursor:pointer;">🗑️</button>` 
-            : '';
+        const deleteBtn = showDelete ? `<button onclick="deletePost('${post.firebaseKey}')" style="color:#ff4757; background:rgba(255,71,87,0.1); border:1px solid #ff4757; padding:5px 10px; border-radius:8px; margin-left:10px;">🗑️</button>` : '';
 
-        const reportBtn = (!isMine && !isAdminMode)
-            ? `<button onclick="reportPost('${post.firebaseKey}', ${post.reports || 0})" style="background:none; border:none; color:rgba(255,255,255,0.3); cursor:pointer; font-size: 1.2rem; margin-left:auto;">🚩</button>`
-            : '<span style="margin-left:auto;"></span>';
+        const reportBtn = (!isMine && !isAdminMode) ? `<button onclick="reportPost('${post.firebaseKey}', ${post.reports || 0})" style="background:none; border:none; color:rgba(255,255,255,0.3); font-size:1.2rem; margin-left:auto;">🚩</button>` : '<span style="margin-left:auto;"></span>';
 
         return `
         <div class="glass-card ${categoryClass}">
             <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
                 <span style="font-size:1.5rem;">${post.avatar}</span>
-                <small style="opacity:0.5;">Anonymous • ${post.time}</small>
+                <small style="opacity:0.5;">${post.time}</small>
                 <div style="margin-left:auto;">${trendingBadge}${catBadge}</div>
             </div>
-            
             <p style="white-space: pre-wrap; margin-bottom: 15px;">${post.text}</p>
-            
             <div style="display:flex; align-items:center; border-top:1px solid rgba(255,255,255,0.1); padding-top:10px;">
-                <button onclick="likePost('${post.firebaseKey}', ${post.likes || 0})" style="background:none; border:none; color:${likeColor}; cursor:pointer; font-weight:bold; margin-right: 15px;">
-                    ${isLiked ? '🔥' : '🕯️'} ${post.likes || 0}
-                </button>
-                
-                <button onclick="toggleComments('${post.firebaseKey}')" style="background:none; border:none; color:white; cursor:pointer; font-size: 0.9rem; opacity: 0.8;">
-                    💬 ${commentCount}
-                </button>
-
-                ${reportBtn}
-                ${deleteBtn}
+                <button onclick="likePost('${post.firebaseKey}', ${post.likes || 0})" style="background:none; border:none; color:${likeColor}; cursor:pointer; font-weight:bold; margin-right: 15px;">${isLiked ? '🔥' : '🕯️'} ${post.likes || 0}</button>
+                <button onclick="toggleComments('${post.firebaseKey}')" style="background:none; border:none; color:white; cursor:pointer; font-size: 0.9rem; opacity: 0.8;">💬 ${commentCount}</button>
+                ${reportBtn}${deleteBtn}
             </div>
-
             <div id="comments-${post.firebaseKey}" class="comment-section">
-                <div class="comments-list">
-                    ${commentCount > 0 ? commentsHTML : '<small style="opacity:0.5; text-align:center;">No comments yet. Be the first!</small>'}
-                </div>
-                
+                <div class="comments-list">${commentCount > 0 ? commentsHTML : '<small style="opacity:0.5;">No comments yet.</small>'}</div>
                 <div class="reply-area">
-                    <input type="text" id="input-${post.firebaseKey}" class="reply-input" placeholder="Type a reply...">
-                    <button onclick="submitComment('${post.firebaseKey}')" class="reply-btn">Send 🚀</button>
+                    <input type="text" id="input-${post.firebaseKey}" class="reply-input" placeholder="Reply...">
+                    <button onclick="submitComment('${post.firebaseKey}')" class="reply-btn">🚀</button>
                 </div>
             </div>
         </div>`;
     }).join('');
 }
 
-// --- ACTIONS ---
-window.toggleComments = function(key) {
-    const section = document.getElementById(`comments-${key}`);
-    if (section) section.style.display = (section.style.display === "block") ? "none" : "block";
+// --- STANDARD ACTIONS (Likes, Reports, Comments, Dice, Games) ---
+window.toggleComments = function(key) { const s = document.getElementById(`comments-${key}`); if(s) s.style.display = (s.style.display==="block")?"none":"block"; };
+window.submitComment = function(key) {
+    const input = document.getElementById(`input-${key}`);
+    if(!input || !input.value.trim()) return;
+    db.ref('confessions/' + key + '/comments').push({
+        text: input.value.trim(), avatar: getMyAvatar(), time: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}),
+        timestamp: Date.now(), deviceId: getDeviceId()
+    });
 };
-
-// 💬 NOW SAVES DEVICE ID SO YOU CAN DELETE YOUR OWN COMMENTS
-window.submitComment = function(postKey) {
-    const input = document.getElementById(`input-${postKey}`);
-    if (!input) return;
-    const text = input.value.trim();
-    if (!text) return alert("Empty comment?");
-
-    const newComment = {
-        text: text,
-        avatar: avatars[Math.floor(Math.random() * avatars.length)],
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        timestamp: Date.now(),
-        deviceId: getDeviceId() // Added: To allow self-delete
-    };
-
-    db.ref('confessions/' + postKey + '/comments').push(newComment);
+window.deleteComment = function(pKey, cKey) { if(confirm("Delete?")) db.ref('confessions/'+pKey+'/comments/'+cKey).remove(); };
+window.likePost = function(key, likes) {
+    let liked = JSON.parse(localStorage.getItem('likedPosts') || '[]');
+    if(liked.includes(key)) return;
+    db.ref('confessions/'+key).update({likes: likes+1});
+    liked.push(key); localStorage.setItem('likedPosts', JSON.stringify(liked));
 };
-
-window.deleteComment = function(postKey, commentKey) {
-    if (confirm("Delete this comment permanently?")) {
-        db.ref('confessions/' + postKey + '/comments/' + commentKey).remove()
-        .then(() => {}) // UI updates automatically via listener
-        .catch(err => alert("Error: " + err.message));
+window.reportPost = function(key, r) {
+    let reported = JSON.parse(localStorage.getItem('reportedPosts') || '[]');
+    if(reported.includes(key)) { alert("Already reported!"); return; }
+    if(confirm("Report this post?")) {
+        db.ref('confessions/'+key).update({reports: r+1});
+        reported.push(key); localStorage.setItem('reportedPosts', JSON.stringify(reported));
+        alert("Reported.");
     }
 };
-
-window.likePost = function(key, currentLikes) {
-    let likedPosts = JSON.parse(localStorage.getItem('likedPosts') || '[]');
-    if (likedPosts.includes(key)) return;
-    db.ref('confessions/' + key).update({ likes: currentLikes + 1 });
-    likedPosts.push(key);
-    localStorage.setItem('likedPosts', JSON.stringify(likedPosts));
-};
-
-window.reportPost = function(key, currentReports) {
-    let reportedPosts = JSON.parse(localStorage.getItem('reportedPosts') || '[]');
-    if (reportedPosts.includes(key)) { alert("Already reported!"); return; }
-    if (confirm("Report this post?")) {
-        db.ref('confessions/' + key).update({ reports: currentReports + 1 });
-        reportedPosts.push(key);
-        localStorage.setItem('reportedPosts', JSON.stringify(reportedPosts));
-        alert("Report submitted.");
-    }
-};
-
-window.deletePost = function(key) {
-    if (confirm(isAdminMode ? "ADMIN DELETE: Are you sure?" : "Delete your post?")) {
-        db.ref('confessions/' + key).remove();
-    }
-};
-
+window.deletePost = function(key) { if(confirm("Delete post?")) db.ref('confessions/'+key).remove(); };
 function getDeviceId() {
     let id = localStorage.getItem('deviceId');
-    if (!id) {
-        id = 'user_' + Date.now() + Math.random().toString(36).substr(2, 9);
-        localStorage.setItem('deviceId', id);
-    }
+    if (!id) { id = 'user_' + Date.now() + Math.random().toString(36).substr(2, 9); localStorage.setItem('deviceId', id); }
     return id;
 }
-
-// --- GAMES LOGIC ---
-window.spinBottle = function() {
-    const bottle = document.getElementById('bottle');
-    if (bottle) {
-        let r = parseInt(bottle.getAttribute('data-rotation') || 0);
-        r += Math.floor(Math.random() * 3000) + 720;
-        bottle.style.transform = `rotate(${r}deg)`;
-        bottle.setAttribute('data-rotation', r);
-    }
+window.rollDicePrompt = function() {
+    const prompts = ["I lied about...", "I have a crush on...", "I stole...", "My secret is...", "Room ___ is..."];
+    const input = document.getElementById('confessionInput');
+    if(input) input.value = prompts[Math.floor(Math.random()*prompts.length)];
 };
+window.addTag = function(t) { const i = document.getElementById('confessionInput'); if(i) i.value += " " + t; };
+// GAMES
+window.spinBottle = function() { const b = document.getElementById('bottle'); if(b) { let r = parseInt(b.getAttribute('data-r')||0)+Math.floor(Math.random()*3000)+720; b.style.transform=`rotate(${r}deg)`; b.setAttribute('data-r', r); }};
+window.getToD = function(t) { document.getElementById('tod-display').innerText = (t==='truth'?["Crush?", "Lie?", "Secret?"]:["Dance", "Sing", "Yell"])[Math.floor(Math.random()*3)]; };
+window.nextNeverHaveIEver = function() { document.getElementById('nhie-display').innerText = ["Never slept in class", "Never lied to parents", "Never used fake ID"][Math.floor(Math.random()*3)]; };
+window.calculateFlames = function() { document.getElementById('flames-result').innerText = ["Friends", "Lovers", "Enemies"][Math.floor(Math.random()*3)]; };
 
-const truths = ["Who is your hostel crush?", "Last lie you told warden?", "Worst mess food?", "Proxy for friend?", "Days without shower?", "Stolen Maggi?", "Stalking on Insta?", "Actual CGPA?", "Cried in washroom?", "Snuck out?"];
-const dares = ["Text crush 'I know what you did'", "Sing anthem", "Scream 'Mummy meri shaadi karwa do!'", "Naagin dance", "Call parents say you failed", "Beg for 10rs", "Wear socks on hands", "Imitate prof", "Eat raw coffee"];
-
-window.getToD = function(type) {
-    const d = document.getElementById('tod-display');
-    if (d) d.innerText = (type === 'truth' ? truths : dares)[Math.floor(Math.random() * (type === 'truth' ? truths : dares).length)];
-};
-
-const nhie = ["Never eaten someone else's tiffin.", "Never called teacher 'Mummy'.", "Never slept in library.", "Never used fake medical.", "Never crushed on friend's sibling.", "Never made Maggi in kettle.", "Never worn same underwear 2 days.", "Never hooked up in hostel."];
-window.nextNeverHaveIEver = function() {
-    const d = document.getElementById('nhie-display');
-    if (d) d.innerText = nhie[Math.floor(Math.random() * nhie.length)];
-};
-
-window.calculateFlames = function() {
-    const n1 = document.getElementById('name1').value.toLowerCase().replace(/\s/g, '');
-    const n2 = document.getElementById('name2').value.toLowerCase().replace(/\s/g, '');
-    const d = document.getElementById('flames-result');
-    if (!n1 || !n2) { d.innerText = "Enter names!"; return; }
-    const o = ["Friends 🤝", "Lovers ❤️", "Affection 🤗", "Marriage 💍", "Enemies ⚔️", "Siblings  राखी"];
-    const c = n1 + n2;
-    let cnt = 0; for(let i=0; i<c.length; i++) cnt += c.charCodeAt(i);
-    d.innerText = o[cnt % o.length];
-    d.style.opacity = 0; setTimeout(() => { d.style.opacity = 1; }, 100);
-};
-
-// --- APP INSTALL LOGIC (PWA) ---
-let deferredPrompt;
-const installBtn = document.getElementById('installBtn');
-
-window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-    if (installBtn) {
-        installBtn.style.display = 'block';
-        installBtn.addEventListener('click', (e) => {
-            installBtn.style.display = 'none';
-            deferredPrompt.prompt();
-            deferredPrompt.userChoice.then((choiceResult) => {
-                deferredPrompt = null;
-            });
-        });
-    }
-});
+// PWA
+window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); const btn=document.getElementById('installBtn'); if(btn){ btn.style.display='block'; btn.onclick=()=>{e.prompt();}; }});
