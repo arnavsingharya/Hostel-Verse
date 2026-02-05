@@ -1,7 +1,6 @@
-/* --- HOSTELVERSE V7.0 (POLLS + SEARCH + ADMIN) --- */
+/* --- HOSTELVERSE V8.0 (MULTI-OPTION POLLS) --- */
 console.log("HostelVerse Script Loaded 🚀");
 
-// --- 1. FIREBASE CONFIGURATION ---
 const firebaseConfig = {
   apiKey: "AIzaSyADora-jmivunZDqq2L4ZhARgOofa4pQyA",
   authDomain: "hostel-verse-a432c.firebaseapp.com",
@@ -37,7 +36,7 @@ function hideLoader() {
     if (l) { l.style.opacity = '0'; setTimeout(() => { l.style.display = 'none'; }, 500); }
 }
 
-// 🦊 FIXED IDENTITY
+// 🦊 IDENTITY LOGIC
 const avatars = ['🦊', '🐱', '🦄', '👻', '🤖', '👾', '🐸', '🦁', '🐵', '🐼', '🐯', '🐙', '👽', '💀', '🦖'];
 function initializeIdentity() {
     if (!localStorage.getItem('userAvatar')) {
@@ -51,7 +50,7 @@ function getDeviceId() {
     return id;
 }
 
-// 🕵️‍♂️ ADMIN
+// 🕵️‍♂️ ADMIN LOGIC
 function setupAdminTrigger() {
     const logo = document.querySelector('.logo');
     if (logo) {
@@ -85,11 +84,33 @@ function setupCharCounter() {
     }
 }
 
-// --- SUBMIT POST (TEXT OR POLL) ---
+// ➕ ADD POLL OPTION LOGIC
+window.addPollInput = function() {
+    const container = document.getElementById('pollOptionsContainer');
+    const count = container.getElementsByTagName('input').length;
+    
+    if (count >= 4) {
+        alert("Max 4 options allowed!");
+        return;
+    }
+
+    const input = document.createElement('input');
+    input.type = "text";
+    input.className = "poll-input";
+    input.placeholder = `Option ${count + 1}`;
+    input.style.marginTop = "10px";
+    input.style.borderColor = (count === 2) ? "#eccc68" : "#2ecc71"; // Different colors for new opts
+    
+    container.appendChild(input);
+
+    if (count + 1 >= 4) {
+        document.getElementById('addOptBtn').style.display = 'none';
+    }
+};
+
+// --- SUBMIT POST (Handles both Text & Polls) ---
 window.submitPost = function() {
     const category = document.getElementById('categorySelect').value;
-    
-    // Check if we are in Poll Mode (UI logic is in HTML)
     const isPoll = document.getElementById('poll-mode').style.display === 'block';
 
     let newPost = {
@@ -103,21 +124,23 @@ window.submitPost = function() {
     };
 
     if (isPoll) {
-        // POLL DATA
         const question = document.getElementById('pollQuestion').value.trim();
-        const optA = document.getElementById('optionA').value.trim();
-        const optB = document.getElementById('optionB').value.trim();
+        const inputs = document.querySelectorAll('.poll-input');
+        let options = [];
 
-        if (!question || !optA || !optB) return alert("Fill all poll fields!");
+        // Collect valid inputs
+        inputs.forEach(input => {
+            if (input.value.trim()) {
+                options.push({ text: input.value.trim(), votes: 0 });
+            }
+        });
+
+        if (!question || options.length < 2) return alert("Question + at least 2 options required!");
         
         newPost.type = 'poll';
-        newPost.text = question; // Storing question as 'text' for search compatibility
-        newPost.optionA = optA;
-        newPost.optionB = optB;
-        newPost.votesA = 0;
-        newPost.votesB = 0;
+        newPost.text = question;
+        newPost.options = options; // Array of options
     } else {
-        // TEXT DATA
         const text = document.getElementById('confessionInput').value.trim();
         if (!text) return alert("Write something!");
         newPost.type = 'text';
@@ -130,7 +153,6 @@ window.submitPost = function() {
     });
 };
 
-// --- LISTEN & SEARCH ---
 function listenForConfessions() {
     if (!db) return;
     const container = document.getElementById('feed-container');
@@ -160,7 +182,7 @@ window.filterFeed = function() {
     renderFeed(container, filtered);
 };
 
-// --- RENDER FEED (POLL + TEXT) ---
+// --- RENDER FEED ---
 function renderFeed(container, posts) {
     const myId = getDeviceId();
     const likedPosts = JSON.parse(localStorage.getItem('likedPosts') || '[]');
@@ -170,41 +192,44 @@ function renderFeed(container, posts) {
         const likeColor = isLiked ? "#bc13fe" : "white";
         const isMine = post.deviceId === myId;
         
-        // --- CONTENT RENDERER (TEXT vs POLL) ---
+        // --- CONTENT RENDERER ---
         let contentHTML = '';
         if (post.type === 'poll') {
-            // POLL RENDERER
-            const total = (post.votesA || 0) + (post.votesB || 0);
-            const perA = total === 0 ? 50 : Math.round(((post.votesA || 0) / total) * 100);
-            const perB = total === 0 ? 50 : Math.round(((post.votesB || 0) / total) * 100);
-            
-            contentHTML = `
-                <h3 style="margin-bottom:15px; font-size:1.1rem;">📊 ${post.text}</h3>
-                <div onclick="votePoll('${post.firebaseKey}', 'A')" style="background:rgba(255,255,255,0.1); border:1px solid #48dbfb; border-radius:10px; padding:10px; margin-bottom:10px; cursor:pointer; position:relative; overflow:hidden;">
-                    <div style="position:absolute; top:0; left:0; height:100%; width:${perA}%; background:rgba(72,219,251,0.3); z-index:0; transition:width 0.5s;"></div>
-                    <div style="display:flex; justify-content:space-between; position:relative; z-index:1;">
-                        <strong>${post.optionA}</strong>
-                        <span>${perA}%</span>
-                    </div>
-                </div>
-                <div onclick="votePoll('${post.firebaseKey}', 'B')" style="background:rgba(255,255,255,0.1); border:1px solid #ff4757; border-radius:10px; padding:10px; cursor:pointer; position:relative; overflow:hidden;">
-                    <div style="position:absolute; top:0; left:0; height:100%; width:${perB}%; background:rgba(255,71,87,0.3); z-index:0; transition:width 0.5s;"></div>
-                    <div style="display:flex; justify-content:space-between; position:relative; z-index:1;">
-                        <strong>${post.optionB}</strong>
-                        <span>${perB}%</span>
-                    </div>
-                </div>
-                <small style="opacity:0.5; display:block; text-align:right; margin-top:5px;">Total Votes: ${total}</small>
-            `;
+            // Check if it's the NEW poll format (Array)
+            if (post.options && Array.isArray(post.options)) {
+                // NEW MULTI-OPTION POLL
+                const totalVotes = post.options.reduce((acc, opt) => acc + (opt.votes || 0), 0);
+                
+                const barsHTML = post.options.map((opt, index) => {
+                    const percent = totalVotes === 0 ? 0 : Math.round((opt.votes / totalVotes) * 100);
+                    const colors = ["#48dbfb", "#ff4757", "#eccc68", "#2ecc71"];
+                    const color = colors[index % colors.length];
+
+                    return `
+                    <div onclick="votePoll('${post.firebaseKey}', ${index})" style="background:rgba(255,255,255,0.05); border:1px solid ${color}; border-radius:10px; padding:10px; margin-bottom:8px; cursor:pointer; position:relative; overflow:hidden;">
+                        <div style="position:absolute; top:0; left:0; height:100%; width:${percent}%; background:${color}; opacity:0.2; z-index:0; transition:width 0.5s;"></div>
+                        <div style="display:flex; justify-content:space-between; position:relative; z-index:1;">
+                            <strong>${opt.text}</strong>
+                            <span>${percent}%</span>
+                        </div>
+                    </div>`;
+                }).join('');
+
+                contentHTML = `
+                    <h3 style="margin-bottom:15px; font-size:1.1rem;">📊 ${post.text}</h3>
+                    ${barsHTML}
+                    <small style="opacity:0.5; display:block; text-align:right;">Total Votes: ${totalVotes}</small>
+                `;
+            } else {
+                // BACKWARD COMPATIBILITY
+                contentHTML = `<p style="color:red; font-size:0.8rem;">(Old Poll Format not supported)</p>`;
+            }
         } else {
-            // STANDARD TEXT RENDERER
             contentHTML = `<p style="white-space: pre-wrap; margin-bottom: 15px;">${post.text}</p>`;
         }
 
         // --- BUTTONS ---
         const deleteBtn = (isAdminMode || isMine) ? `<button onclick="deletePost('${post.firebaseKey}')" style="color:#ff4757; background:rgba(255,71,87,0.1); border:1px solid #ff4757; padding:5px 10px; margin-left:10px;">🗑️</button>` : '';
-
-        // Comments
         const commentsObj = post.comments || {};
         const cCount = Object.keys(commentsObj).length;
         const cHTML = Object.entries(commentsObj).map(([id, c]) => {
@@ -218,15 +243,12 @@ function renderFeed(container, posts) {
                 <span style="font-size:1.5rem;">${post.avatar}</span>
                 <small style="opacity:0.5;">${post.time}</small>
             </div>
-            
             ${contentHTML}
-            
             <div style="display:flex; align-items:center; border-top:1px solid rgba(255,255,255,0.1); padding-top:10px; margin-top:15px;">
                 <button onclick="likePost('${post.firebaseKey}', ${post.likes || 0})" style="background:none; border:none; color:${likeColor}; font-weight:bold; margin-right:15px;">🔥 ${post.likes || 0}</button>
                 <button onclick="toggleComments('${post.firebaseKey}')" style="background:none; border:none; color:white; opacity:0.8;">💬 ${cCount}</button>
                 ${deleteBtn}
             </div>
-
             <div id="comments-${post.firebaseKey}" class="comment-section">
                 <div class="comments-list">${cHTML || '<small>No comments.</small>'}</div>
                 <div class="reply-area">
@@ -238,48 +260,34 @@ function renderFeed(container, posts) {
     }).join('');
 }
 
-// --- VOTING LOGIC ---
-window.votePoll = function(key, option) {
+// --- NEW VOTING LOGIC (BY INDEX) ---
+window.votePoll = function(key, index) {
     const votedKey = `voted_${key}`;
     if (localStorage.getItem(votedKey)) {
         alert("You already voted! 🚫");
         return;
     }
 
-    const field = option === 'A' ? 'votesA' : 'votesB';
-    db.ref('confessions/' + key).transaction(post => {
-        if (post) {
-            post[field] = (post[field] || 0) + 1;
-        }
-        return post;
+    // Firebase Transaction to safely increment specific array index
+    db.ref('confessions/' + key + '/options/' + index + '/votes').transaction((currentVotes) => {
+        return (currentVotes || 0) + 1;
     }, (error, committed) => {
         if (committed) {
             localStorage.setItem(votedKey, 'true');
-            // Alert removed to make it feel faster/smoother
         }
     });
 };
 
-// --- ACTIONS ---
+// ACTIONS
 window.toggleComments = function(k) { const s=document.getElementById('comments-'+k); if(s)s.style.display=(s.style.display==="block")?"none":"block"; };
-window.submitComment = function(k) {
-    const v=document.getElementById('input-'+k).value.trim();
-    if(v) db.ref('confessions/'+k+'/comments').push({text:v, avatar:getMyAvatar(), time:new Date().toLocaleTimeString(), deviceId:getDeviceId()});
-};
+window.submitComment = function(k) { const v=document.getElementById('input-'+k).value.trim(); if(v) db.ref('confessions/'+k+'/comments').push({text:v, avatar:getMyAvatar(), time:new Date().toLocaleTimeString(), deviceId:getDeviceId()}); };
 window.delCom = function(p,c) { if(confirm("Delete?")) db.ref('confessions/'+p+'/comments/'+c).remove(); };
-window.likePost = function(k,l) {
-    let liked=JSON.parse(localStorage.getItem('likedPosts')||'[]');
-    if(!liked.includes(k)) { db.ref('confessions/'+k).update({likes:l+1}); liked.push(k); localStorage.setItem('likedPosts',JSON.stringify(liked)); }
-};
+window.likePost = function(k,l) { let liked=JSON.parse(localStorage.getItem('likedPosts')||'[]'); if(!liked.includes(k)) { db.ref('confessions/'+k).update({likes:l+1}); liked.push(k); localStorage.setItem('likedPosts',JSON.stringify(liked)); }};
 window.deletePost = function(k) { if(confirm("Delete?")) db.ref('confessions/'+k).remove(); };
-
 window.rollDicePrompt = function() { document.getElementById('confessionInput').value = ["I lied about...", "Crush on...", "Secret is..."][Math.floor(Math.random()*3)]; };
 window.addTag = function(t) { document.getElementById('confessionInput').value += " " + t; };
-// GAMES (Existing)
 window.spinBottle=function(){const b=document.getElementById('bottle');if(b){let r=Math.random()*3000+720;b.style.transform=`rotate(${r}deg)`;}};
 window.getToD=function(t){document.getElementById('tod-display').innerText="Ask your friends!";};
 window.nextNeverHaveIEver=function(){document.getElementById('nhie-display').innerText="Click Next!";};
 window.calculateFlames=function(){document.getElementById('flames-result').innerText="❤️";};
-
-// PWA
 window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); const b=document.getElementById('installBtn'); if(b){b.style.display='block'; b.onclick=()=>e.prompt();} });
