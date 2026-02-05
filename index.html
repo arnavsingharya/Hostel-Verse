@@ -36,8 +36,13 @@
             <p>Anonymous. Unfiltered. Just pure chaos.</p>
         </header>
 
-        <section id="feed-container">
-            </section>
+        <div style="margin-bottom: 20px; position: relative;">
+    <input type="text" id="searchInput" placeholder="🔍 Search (e.g., Room 304, Warden)..." onkeyup="filterFeed()" 
+    style="padding-left: 40px; border-color: var(--accent); box-shadow: 0 0 10px rgba(72, 219, 251, 0.2);">
+</div>
+
+<section id="feed-container">
+    </section>
     </main>
 
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
@@ -46,5 +51,6 @@
     <script src="script.js?v=5"></script>
 </body>
 </html>
+
 
 
