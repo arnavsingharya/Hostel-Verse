@@ -1,4 +1,4 @@
-/* --- HOSTELVERSE V9.0 (FEEDBACK + NOTIFICATIONS) --- */
+/* --- HOSTELVERSE V10.0 (ADMIN DASHBOARD + FEEDBACK + NOTIFICATIONS) --- */
 console.log("HostelVerse Script Loaded 🚀");
 
 const firebaseConfig = {
@@ -16,7 +16,7 @@ let db;
 let isAdminMode = false;
 let logoClicks = 0;
 let allConfessions = [];
-let isFirstLoad = true; // For Notifications
+let isFirstLoad = true; 
 
 if (typeof firebase !== 'undefined') {
     try {
@@ -53,13 +53,13 @@ function getDeviceId() {
 // 🔔 NOTIFICATION SYSTEM
 window.enableNotifications = function() {
     if (!("Notification" in window)) {
-        alert("This browser does not support desktop notification");
+        alert("This browser does not support notifications.");
     } else if (Notification.permission === "granted") {
-        new Notification("Notifications Enabled! 🔔", { body: "You'll be alerted when tea is spilled." });
+        new Notification("Notifications Active! 🔔", { body: "You'll be alerted when tea is spilled." });
     } else if (Notification.permission !== "denied") {
         Notification.requestPermission().then(function (permission) {
             if (permission === "granted") {
-                new Notification("Notifications Enabled! 🔔", { body: "You'll be alerted when tea is spilled." });
+                new Notification("Notifications Active! 🔔", { body: "You'll be alerted when tea is spilled." });
             }
         });
     }
@@ -91,22 +91,76 @@ window.submitFeedback = function() {
     });
 };
 
+// 🕵️‍♂️ ADMIN TRIGGER & DASHBOARD
 function setupAdminTrigger() {
     const logo = document.querySelector('.logo');
     if (logo) {
         logo.addEventListener('click', (e) => {
+            // Only trigger on Feed page
             if(window.location.pathname.includes('index.html') || window.location.href.endsWith('/')) {
                 e.preventDefault();
                 logoClicks++;
                 if (logoClicks === 5) {
                     if (prompt("Password:") === "#Y00cr0y0y") { 
-                        isAdminMode = true; alert("🔓 GOD MODE"); listenForConfessions(); 
+                        isAdminMode = true; 
+                        alert("🔓 GOD MODE ACTIVATED"); 
+                        listenForConfessions(); // Refresh feed to show delete buttons
+                        renderAdminDashboard(); // SHOW THE FEEDBACK PANEL
                     }
                     logoClicks = 0;
                 }
             }
         });
     }
+}
+
+// 👑 THE SECRET ADMIN DASHBOARD (Injects HTML into Feed)
+function renderAdminDashboard() {
+    const searchBar = document.querySelector('input[type="text"]').parentNode; // Find the search bar container
+    if (!searchBar) return;
+
+    // Check if dashboard already exists
+    let dashboard = document.getElementById('admin-dashboard');
+    if (!dashboard) {
+        dashboard = document.createElement('div');
+        dashboard.id = 'admin-dashboard';
+        // Insert dashboard BEFORE the search bar
+        searchBar.parentNode.insertBefore(dashboard, searchBar);
+    }
+
+    // Live Listen for Feedback
+    db.ref('feedback').on('value', (snapshot) => {
+        const data = snapshot.val();
+        if (!data) {
+            dashboard.innerHTML = '<div class="glass-card" style="border:1px solid gold; color:gold; text-align:center; margin-bottom:20px;">👑 Admin Active: No feedback yet.</div>';
+            return;
+        }
+
+        let html = `
+        <div class="glass-card" style="border: 2px solid #ffd700; box-shadow: 0 0 15px rgba(255, 215, 0, 0.2); margin-bottom: 25px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 1px solid rgba(255,215,0,0.3); padding-bottom: 10px; margin-bottom: 15px;">
+                <h3 style="color: #ffd700;">👑 Admin Inbox</h3>
+                <span style="background:#ffd700; color:black; padding:2px 8px; border-radius:10px; font-size:0.8rem; font-weight:bold;">${Object.keys(data).length} Msgs</span>
+            </div>
+            <div style="max-height: 250px; overflow-y: auto; padding-right: 5px;">
+        `;
+
+        // Sort Newest First
+        const items = [];
+        Object.keys(data).forEach(key => items.push(data[key]));
+        items.reverse();
+
+        items.forEach(item => {
+            html += `
+            <div style="background: rgba(255,255,255,0.05); border-left: 3px solid #ffd700; padding: 10px; margin-bottom: 10px; border-radius: 5px;">
+                <p style="font-size: 0.95rem; margin-bottom: 5px; color: #eee;">"${item.text}"</p>
+                <small style="opacity: 0.5; font-size: 0.75rem; color: #ffd700;">📅 ${item.time}</small>
+            </div>`;
+        });
+
+        html += `</div></div>`;
+        dashboard.innerHTML = html;
+    });
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -183,77 +237,4 @@ function listenForConfessions() {
         const previousCount = allConfessions.length;
         
         allConfessions = Object.keys(data)
-            .map(key => ({ firebaseKey: key, ...data[key] }))
-            .filter(post => isAdminMode || (post.reports || 0) < 5); 
-
-        allConfessions.sort((a, b) => b.timestamp - a.timestamp);
-        
-        // 🔔 NOTIFICATION TRIGGER
-        if (!isFirstLoad && allConfessions.length > previousCount) {
-             // Only notify if the new post is NOT mine
-             if (allConfessions[0].deviceId !== getDeviceId()) {
-                 triggerNotification(allConfessions[0].text);
-             }
-        }
-        isFirstLoad = false;
-
-        renderFeed(container, allConfessions);
-    });
-}
-
-window.filterFeed = function() {
-    const query = document.getElementById('searchInput').value.toLowerCase().trim();
-    const container = document.getElementById('feed-container');
-    if (!allConfessions.length) return;
-    const filtered = allConfessions.filter(post => (post.text || "").toLowerCase().includes(query) || (post.category || "").toLowerCase().includes(query));
-    renderFeed(container, filtered);
-};
-
-function renderFeed(container, posts) {
-    const myId = getDeviceId();
-    const likedPosts = JSON.parse(localStorage.getItem('likedPosts') || '[]');
-
-    container.innerHTML = posts.map(post => {
-        const isLiked = likedPosts.includes(post.firebaseKey);
-        const likeColor = isLiked ? "#bc13fe" : "white";
-        const isMine = post.deviceId === myId;
-        
-        let contentHTML = '';
-        if (post.type === 'poll') {
-            if (post.options && Array.isArray(post.options)) {
-                const totalVotes = post.options.reduce((acc, opt) => acc + (opt.votes || 0), 0);
-                const barsHTML = post.options.map((opt, index) => {
-                    const percent = totalVotes === 0 ? 0 : Math.round((opt.votes / totalVotes) * 100);
-                    const colors = ["#48dbfb", "#ff4757", "#eccc68", "#2ecc71"];
-                    const color = colors[index % colors.length];
-                    return `<div onclick="votePoll('${post.firebaseKey}', ${index})" style="background:rgba(255,255,255,0.05); border:1px solid ${color}; border-radius:10px; padding:10px; margin-bottom:8px; cursor:pointer; position:relative; overflow:hidden;"><div style="position:absolute; top:0; left:0; height:100%; width:${percent}%; background:${color}; opacity:0.2; z-index:0; transition:width 0.5s;"></div><div style="display:flex; justify-content:space-between; position:relative; z-index:1;"><strong>${opt.text}</strong><span>${percent}%</span></div></div>`;
-                }).join('');
-                contentHTML = `<h3 style="margin-bottom:15px; font-size:1.1rem;">📊 ${post.text}</h3>${barsHTML}<small style="opacity:0.5; display:block; text-align:right;">Total Votes: ${totalVotes}</small>`;
-            } else { contentHTML = `<p style="color:red; font-size:0.8rem;">(Old Poll)</p>`; }
-        } else { contentHTML = `<p style="white-space: pre-wrap; margin-bottom: 15px;">${post.text}</p>`; }
-
-        const deleteBtn = (isAdminMode || isMine) ? `<button onclick="deletePost('${post.firebaseKey}')" style="color:#ff4757; background:rgba(255,71,87,0.1); border:1px solid #ff4757; padding:5px 10px; margin-left:10px;">🗑️</button>` : '';
-        const commentsObj = post.comments || {};
-        const cCount = Object.keys(commentsObj).length;
-        const cHTML = Object.entries(commentsObj).map(([id, c]) => {
-            const delC = (isAdminMode || c.deviceId === myId) ? `<span onclick="delCom('${post.firebaseKey}','${id}')" style="float:right;color:red;cursor:pointer;">🗑️</span>` : '';
-            return `<div class="comment-bubble">${delC}<strong>${c.avatar}</strong><br>${c.text}</div>`;
-        }).join('');
-
-        return `<div class="glass-card ${post.category ? 'cat-'+post.category : ''}"><div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;"><span style="font-size:1.5rem;">${post.avatar}</span><small style="opacity:0.5;">${post.time}</small></div>${contentHTML}<div style="display:flex; align-items:center; border-top:1px solid rgba(255,255,255,0.1); padding-top:10px; margin-top:15px;"><button onclick="likePost('${post.firebaseKey}', ${post.likes || 0})" style="background:none; border:none; color:${likeColor}; font-weight:bold; margin-right:15px;">🔥 ${post.likes || 0}</button><button onclick="toggleComments('${post.firebaseKey}')" style="background:none; border:none; color:white; opacity:0.8;">💬 ${cCount}</button>${deleteBtn}</div><div id="comments-${post.firebaseKey}" class="comment-section"><div class="comments-list">${cHTML || '<small>No comments.</small>'}</div><div class="reply-area"><input type="text" id="input-${post.firebaseKey}" class="reply-input" placeholder="Reply..."><button onclick="submitComment('${post.firebaseKey}')" class="reply-btn">🚀</button></div></div></div>`;
-    }).join('');
-}
-
-window.votePoll = function(key, index) { const k = `voted_${key}`; if (localStorage.getItem(k)) { alert("Already voted!"); return; } db.ref('confessions/'+key+'/options/'+index+'/votes').transaction((v) => (v || 0) + 1, (e, c) => { if (c) localStorage.setItem(k, 'true'); }); };
-window.toggleComments = function(k) { const s=document.getElementById('comments-'+k); if(s)s.style.display=(s.style.display==="block")?"none":"block"; };
-window.submitComment = function(k) { const v=document.getElementById('input-'+k).value.trim(); if(v) db.ref('confessions/'+k+'/comments').push({text:v, avatar:getMyAvatar(), time:new Date().toLocaleTimeString(), deviceId:getDeviceId()}); };
-window.delCom = function(p,c) { if(confirm("Delete?")) db.ref('confessions/'+p+'/comments/'+c).remove(); };
-window.likePost = function(k,l) { let liked=JSON.parse(localStorage.getItem('likedPosts')||'[]'); if(!liked.includes(k)) { db.ref('confessions/'+k).update({likes:l+1}); liked.push(k); localStorage.setItem('likedPosts',JSON.stringify(liked)); }};
-window.deletePost = function(k) { if(confirm("Delete?")) db.ref('confessions/'+k).remove(); };
-window.rollDicePrompt = function() { document.getElementById('confessionInput').value = ["I lied about...", "Crush on...", "Secret is..."][Math.floor(Math.random()*3)]; };
-window.addTag = function(t) { document.getElementById('confessionInput').value += " " + t; };
-window.spinBottle=function(){const b=document.getElementById('bottle');if(b){let r=Math.random()*3000+720;b.style.transform=`rotate(${r}deg)`;}};
-window.getToD=function(t){document.getElementById('tod-display').innerText="Ask your friends!";};
-window.nextNeverHaveIEver=function(){document.getElementById('nhie-display').innerText="Click Next!";};
-window.calculateFlames=function(){document.getElementById('flames-result').innerText="❤️";};
-window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); const b=document.getElementById('installBtn'); if(b){b.style.display='block'; b.onclick=()=>e.prompt();} });
+            .map
