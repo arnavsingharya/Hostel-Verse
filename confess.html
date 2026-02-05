@@ -4,70 +4,98 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Spill the Tea | HostelVerse</title>
-    
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#bc13fe">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-
     <link rel="icon" type="image/png" href="Hostel Verse Logo.png">
-    <link rel="stylesheet" href="style.css?v=2">
+    <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
-    <meta name="google-site-verification" content="VLN2BcDXbIb84sSULId5dbkHy2Xh9wrA3FVNEHFDYDc" />
 </head>
 <body>
     <nav class="navbar">
-    <div class="logo">Hostel<span>Verse</span></div>
-    <ul class="nav-links">
-        <li><a href="welcome.html">Home</a></li>
-        <li><a href="index.html">Feed</a></li>
-        <li><a href="confess.html" class="active">Confess</a></li> 
-        <li><a href="games.html">Games</a></li>
-        <li><a href="about.html">About</a></li>
-    </ul>
-</nav>
+        <div class="logo">Hostel<span>Verse</span></div>
+        <ul class="nav-links">
+            <li><a href="welcome.html">Home</a></li>
+            <li><a href="index.html">Feed</a></li>
+            <li><a href="confess.html" class="active">Confess</a></li> 
+            <li><a href="games.html">Games</a></li>
+            <li><a href="about.html">About</a></li>
+        </ul>
+    </nav>
 
     <main class="container">
     <div class="glass-card confession-box">
-        <h2>Spill the Tea ☕</h2>
-        <p style="margin-bottom: 15px; opacity: 0.7;">Your identity is safe with us.</p>
+        <h2>Create Post ✍️</h2>
         
+        <div style="display: flex; background: rgba(0,0,0,0.3); border-radius: 10px; margin-bottom: 20px; padding: 5px;">
+            <button id="btn-text" onclick="switchMode('text')" style="flex: 1; background: var(--primary); color: white; padding: 10px;">📝 Text</button>
+            <button id="btn-poll" onclick="switchMode('poll')" style="flex: 1; background: transparent; color: #aaa; padding: 10px;">📊 Poll</button>
+        </div>
+
         <select id="categorySelect">
-            <option value="general">Select Vibe (Optional)...</option>
+            <option value="general">Select Vibe...</option>
             <option value="crush">❤️ Crush / Love</option>
             <option value="rant">😡 Rant / Angry</option>
             <option value="funny">😂 Funny / Meme</option>
             <option value="scary">👻 Scary / Paranormal</option>
         </select>
 
-        <div class="textarea-wrapper">
-            <button onclick="rollDicePrompt()" class="dice-btn" title="Need an idea?">🎲</button>
-            <textarea id="confessionInput" placeholder="Someone in Room F?? stole my Bottle..." maxlength="280"></textarea>
-        </div>
-        
-        <span id="charCount" class="char-count">0 / 280</span>
-
-        <div class="tags-container">
-            <span class="tag-chip" onclick="addTag('#Warden')">#Warden</span>
-            <span class="tag-chip" onclick="addTag('#MessFood')">#MessFood</span>
-            <span class="tag-chip" onclick="addTag('#Crush')">#Crush</span>
-            <span class="tag-chip" onclick="addTag('#ExamStress')">#ExamStress</span>
-            <span class="tag-chip" onclick="addTag('#Freshers')">#Freshers</span>
-            <span class="tag-chip" onclick="addTag('#Snitch')">#Snitch</span>
+        <div id="text-mode">
+            <div class="textarea-wrapper">
+                <button onclick="rollDicePrompt()" class="dice-btn" title="Need an idea?">🎲</button>
+                <textarea id="confessionInput" placeholder="Spill the tea..." maxlength="280"></textarea>
+            </div>
+            <span id="charCount" class="char-count">0 / 280</span>
+            
+            <div class="tags-container">
+                <span class="tag-chip" onclick="addTag('#Warden')">#Warden</span>
+                <span class="tag-chip" onclick="addTag('#MessFood')">#MessFood</span>
+                <span class="tag-chip" onclick="addTag('#Crush')">#Crush</span>
+            </div>
         </div>
 
-        <button onclick="submitConfession()" class="btn-primary">Post Anonymously</button>
+        <div id="poll-mode" style="display: none;">
+            <input type="text" id="pollQuestion" placeholder="Ask a question (e.g. Mass Bunk?)" maxlength="80">
+            <div style="display: flex; gap: 10px; margin-top: 10px;">
+                <input type="text" id="optionA" placeholder="Option A (e.g. Yes)" style="border-color: #48dbfb;">
+                <input type="text" id="optionB" placeholder="Option B (e.g. No)" style="border-color: #ff4757;">
+            </div>
+            <p style="font-size: 0.8rem; opacity: 0.5; margin-top: 10px; text-align: center;">Polls are anonymous & last 24 hours.</p>
+        </div>
+
+        <button onclick="submitPost()" class="btn-primary" style="margin-top: 20px;">Post It 🚀</button>
 
         <div class="privacy-box">
             <span class="privacy-icon">🛡️</span>
-            <span><strong>Incognito Mode:</strong> Your IP is hidden. No logs. 100% Anonymous.</span>
+            <span><strong>Incognito Mode:</strong> Your IP is hidden. 100% Anonymous.</span>
         </div>
     </div>
-</main>
+    </main>
 
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
-    <script src="script.js"></script>
+    <script src="script.js?v=7"></script>
+
+    <script>
+        // UI SWITCH LOGIC
+        let currentMode = 'text';
+        function switchMode(mode) {
+            currentMode = mode;
+            if (mode === 'text') {
+                document.getElementById('text-mode').style.display = 'block';
+                document.getElementById('poll-mode').style.display = 'none';
+                document.getElementById('btn-text').style.background = 'var(--primary)';
+                document.getElementById('btn-text').style.color = 'white';
+                document.getElementById('btn-poll').style.background = 'transparent';
+                document.getElementById('btn-poll').style.color = '#aaa';
+            } else {
+                document.getElementById('text-mode').style.display = 'none';
+                document.getElementById('poll-mode').style.display = 'block';
+                document.getElementById('btn-poll').style.background = 'var(--primary)';
+                document.getElementById('btn-poll').style.color = 'white';
+                document.getElementById('btn-text').style.background = 'transparent';
+                document.getElementById('btn-text').style.color = '#aaa';
+            }
+        }
+    </script>
 </body>
 </html>
-
-
