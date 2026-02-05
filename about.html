@@ -6,42 +6,12 @@
     <title>HostelVerse | About</title>
     
     <link rel="icon" type="image/png" href="Hostel Verse Logo.png">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=3">
     
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#bc13fe">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    
-    <meta name="google-site-verification" content="VLN2BcDXbIb84sSULId5dbkHy2Xh9wrA3FVNEHFDYDc" />
-
-    <style>
-        /* GRID SYSTEM: Makes all boxes look uniform */
-        .about-grid {
-            display: grid;
-            grid-template-columns: 1fr; /* 1 column on mobile */
-            gap: 20px;
-        }
-        
-        /* On Laptop/PC: Split into 2 equal columns */
-        @media (min-width: 768px) {
-            .about-grid {
-                grid-template-columns: 1fr 1fr; 
-            }
-        }
-        
-        .social-icon {
-            color: white;
-            transition: 0.3s;
-            opacity: 0.7;
-        }
-        .social-icon:hover {
-            opacity: 1;
-            color: var(--primary);
-            transform: scale(1.1);
-        }
-    </style>
+    <meta name="theme-color" content="#bc13fe">
 </head>
 <body>
     <nav class="navbar">
@@ -73,6 +43,13 @@
                 <p style="font-size: 0.9rem; color: rgba(255, 255, 255, 0.6); margin-top: 5px;">
                     We don't store personal data. Everything is anonymous. IP addresses are not logged.
                 </p>
+            </div>
+
+            <div class="glass-card" style="border-color: var(--accent);">
+                <h3>💡 Request a Feature</h3>
+                <p style="font-size: 0.9rem; margin-bottom: 10px; opacity: 0.7;">Want Dark Mode? Image Uploads? Tell the Dev.</p>
+                <textarea id="feedbackInput" placeholder="I wish this app had..." style="height: 80px; font-size: 0.9rem;"></textarea>
+                <button onclick="submitFeedback()" class="btn-primary" style="margin-top: 10px; padding: 10px; font-size: 0.9rem; background: var(--accent);">Send Idea 🚀</button>
             </div>
 
             <div class="glass-card">
@@ -111,5 +88,9 @@
 
         </div>
     </main>
+    
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    <script src="script.js?v=9"></script>
 </body>
 </html>
