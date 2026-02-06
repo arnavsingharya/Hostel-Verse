@@ -1,9 +1,11 @@
-/* --- HOSTELVERSE V11.0 (BULLETPROOF GAMES & LOADER) --- */
+/* --- HOSTELVERSE V12.0 (FIXED FLAMES & DETERMINISTIC GAMES) --- */
 console.log("HostelVerse Script Loaded 🚀");
 
 /* =========================================
-   🕹️ GAME LOGIC (MOVED TO TOP FOR SAFETY)
+   🕹️ GAME LOGIC (FIXED)
    ========================================= */
+
+// 🍾 SPIN THE BOTTLE (Random is fine here)
 window.spinBottle = function() {
     const b = document.getElementById('bottle');
     if(b) {
@@ -12,21 +14,63 @@ window.spinBottle = function() {
     }
 };
 
+// 😈 TRUTH OR DARE
 window.getToD = function(type) {
-    const t = ["Who is your crush?", "Last lie you told?", "Worst mess food?", "Stalking anyone?", "Exam cheating story?"];
-    const d = ["Text your crush 'I know'", "Dance on table", "Yell 'I love Warden'", "Sing loudly", "Call parents say you failed"];
+    const t = ["Who is your crush?", "Last lie you told?", "Worst mess food?", "Stalking anyone?", "Exam cheating story?", "Last person you searched on Insta?"];
+    const d = ["Text your crush 'I know'", "Dance on table", "Yell 'I love Warden'", "Sing loudly", "Call parents say you failed", "Do 10 pushups"];
     document.getElementById('tod-display').innerText = (type==='truth'?t:d)[Math.floor(Math.random()*(type==='truth'?t:d).length)];
 };
 
+// 🍺 NEVER HAVE I EVER
 window.nextNeverHaveIEver = function() {
-    const q = ["Never slept in class", "Never lied to parents", "Never used fake ID", "Never crushed on roommate", "Never skipped bath for 3 days"];
+    const q = ["Never slept in class", "Never lied to parents", "Never used fake ID", "Never crushed on roommate", "Never skipped bath for 3 days", "Never stole mess spoons"];
     document.getElementById('nhie-display').innerText = q[Math.floor(Math.random()*q.length)];
 };
 
+// ❤️ FLAMES CHECK (Now Deterministic & Validated)
 window.calculateFlames = function() {
-    const r = ["Friends 🤝", "Lovers ❤️", "Affection 🤗", "Marriage 💍", "Enemies ⚔️", "Siblings  राखी"];
-    document.getElementById('flames-result').innerText = r[Math.floor(Math.random()*r.length)];
+    // 1. GET INPUTS & CLEAN THEM (Remove spaces, lowercase)
+    const name1 = document.getElementById('name1').value.toLowerCase().replace(/[^a-z]/g, '');
+    const name2 = document.getElementById('name2').value.toLowerCase().replace(/[^a-z]/g, '');
+    const resultBox = document.getElementById('flames-result');
+
+    // 2. VALIDATION CHECK (Don't run if empty)
+    if (!name1 || !name2) {
+        alert("Enter both names properly! 😡");
+        resultBox.innerText = "?";
+        return;
+    }
+
+    // 3. FLAMES LOGIC (Remove Common Characters)
+    let str1 = name1.split('');
+    let str2 = name2.split('');
+
+    for (let i = 0; i < str1.length; i++) {
+        const index = str2.indexOf(str1[i]);
+        if (index !== -1) {
+            str1[i] = '*'; // Mark as removed
+            str2[index] = '*'; // Mark as removed
+        }
+    }
+
+    // Count remaining valid characters
+    const count = str1.filter(c => c !== '*').length + str2.filter(c => c !== '*').length;
+
+    // 4. DETERMINE DESTINY (Modulo 6)
+    const outcomes = ["Siblings 👦👧", "Friends 🤝", "Lovers ❤️", "Affection 🤗", "Marriage 💍", "Enemies ⚔️"];
+    
+    // Using modulo math to ensure same names always get same result
+    // (count % 6) gives us a number from 0 to 5
+    let resultIndex = count % 6;
+    
+    // Animation Effect
+    resultBox.style.opacity = '0';
+    setTimeout(() => {
+        resultBox.innerText = outcomes[resultIndex];
+        resultBox.style.opacity = '1';
+    }, 200);
 };
+
 
 /* =========================================
    🔥 FIREBASE & APP LOGIC
@@ -59,9 +103,8 @@ if (typeof firebase !== 'undefined') {
 
 // ⏳ FORCE LOADER TO HIDE (Safety Net)
 window.addEventListener('load', () => {
-    // Hide loader immediately on Games page, or after 2s on Feed
     const isFeed = document.getElementById('feed-container');
-    setTimeout(hideLoader, isFeed ? 2500 : 500);
+    setTimeout(hideLoader, isFeed ? 2500 : 500); // Fast load for games
     
     setupAdminTrigger();
     initializeIdentity();
@@ -133,7 +176,6 @@ function setupAdminTrigger() {
 }
 
 function renderAdminDashboard() {
-    // CRASH FIX: Only run if search bar exists
     const input = document.querySelector('input[type="text"]');
     if (!input) return; 
     
@@ -172,7 +214,7 @@ function setupCharCounter() {
 
 window.addPollInput = function() {
     const c = document.getElementById('pollOptionsContainer');
-    if (c.children.length >= 2) { // Logic fix for inputs
+    if (c.children.length >= 2) { 
          const input = document.createElement('input');
          input.type = "text"; input.className = "poll-input"; input.placeholder = `Option ${c.children.length + 1}`;
          input.style.marginTop = "10px"; input.style.borderColor = "#eccc68";
@@ -206,7 +248,7 @@ function listenForConfessions() {
     if (!db) return;
     const c = document.getElementById('feed-container');
     db.ref('confessions').on('value', (s) => {
-        hideLoader(); // Success!
+        hideLoader(); 
         const d = s.val();
         if (!d) { c.innerHTML = `<p style="text-align:center; opacity:0.5;">No posts yet.</p>`; return; }
         
@@ -248,7 +290,6 @@ function renderFeed(c, posts) {
         const delBtn = (isAdminMode||isMine) ? `<button onclick="deletePost('${p.firebaseKey}')" style="color:#ff4757; background:rgba(255,71,87,0.1); border:1px solid #ff4757; padding:5px 10px; margin-left:10px;">🗑️</button>` : '';
         const cCount = p.comments ? Object.keys(p.comments).length : 0;
         
-        // RENDER COMMENTS (Fixed Delete Logic)
         const cHTML = p.comments ? Object.entries(p.comments).map(([id, cm]) => {
             const delC = (isAdminMode || cm.deviceId === myId) ? `<span onclick="delCom('${p.firebaseKey}','${id}')" style="float:right;color:red;cursor:pointer;">🗑️</span>` : '';
             return `<div class="comment-bubble">${delC}<strong>${cm.avatar}</strong><br>${cm.text}</div>`;
